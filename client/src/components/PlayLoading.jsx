@@ -7,7 +7,7 @@ const PlayLoading = () => {
   if (!loading) return null; // Render nothing if not loading
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-[#461A42] z-50">
+    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-[#FFFBF4] z-50">
       <img
         src="./resources/spinner.gif" // Replace with your spinner image path
         alt="Loading..."

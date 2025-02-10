@@ -21,7 +21,7 @@ const RegisterPage = () => {
         <div className="fixed w-screen left-0 top-0 z-[999] bg-[#E4E8EC]">
           <div className="flex justify-between items-center h-[80px] max-w-full mr-10 ml-3">
             <div className="flex items-center space-x-5">
-              <a href="/"><img src="./resources/logo-remote.png" alt="logo" className="w-[120px] cursor-pointer" /></a>
+              <a href="/"><img src="https://www.paneltechllc.com/wp-content/themes/paneltec/images/logo.png" alt="logo" className="w-[120px] cursor-pointer" /></a>
             </div>
             <nav className="flex items-center space-x-1 relative">
               
