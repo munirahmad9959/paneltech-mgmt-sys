@@ -11,11 +11,15 @@ import "slick-carousel/slick/slick-theme.css";
 
 const App = () => {
   const isAuth = Boolean(useSelector((state) => state.auth.token));
+  // const isLoggedIn = Boolean(useSelector((state) => state.auth.isLoggedIn));
 
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/dashboard" element={isAuth ? <Dashboard /> : <Navigate to="/login" />} />
+        {/* <Route path="/login" element={isAuth ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} /> */}
+        {/* <Route path="/register" element={isAuth ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} /> */}
+        {/* <Route path="/" element={isAuth ? <Navigate to="/dashboard" /> : <Navigate to="/" />} /> */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

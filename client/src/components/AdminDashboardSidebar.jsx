@@ -26,7 +26,7 @@ const AdminDashboardSidebar = ({ setCurrentView, showSidebar, setShowSidebar }) 
                 <img src="https://www.paneltechllc.com/wp-content/themes/paneltec/images/logo.png" alt="logo" className="w-[130px] cursor-pointer" />
             </a>
             <div className="flex flex-col max-w-[240px]">
-                {/* Create Button */}
+                {/* Create Button */}   
                 <div className="flex items-center mx-auto">
                     <div className="flex font-semibold items-center space-x-1 button text-white px-20 py-3 mt-3 rounded-md transition duration-200 bg-[#7847b8] hover:bg-[#8854c0] cursor-pointer">
                         <span>

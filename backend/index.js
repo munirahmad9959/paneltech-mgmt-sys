@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
+import attendanceRoutes from './routes/attendance.js';
+
 
 dotenv.config();
 
@@ -25,6 +27,7 @@ app.use(cors(
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -41,4 +44,6 @@ mongoose.connect(process.env.MONGO_URI, {})
     console.error(`Failed to connect to database: ${error.message}`);
     process.exit(1);
   });
+
+
 

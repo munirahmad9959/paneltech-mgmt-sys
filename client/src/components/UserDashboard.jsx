@@ -14,7 +14,7 @@ const UserDashboard = ({ setShowSidebar, setNavDropDown }) => {
 
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen"
+        <div className="p-6 bg-white min-h-screen"
             onClick={() => {
                 setShowSidebar(false);
                 setNavDropDown(false);

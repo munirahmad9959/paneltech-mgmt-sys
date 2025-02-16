@@ -59,8 +59,7 @@ const RegisterComponent = () => {
             console.log("Registration successful:", response.data);
             navigate('/login');
         } catch (error) {
-            console.error("Registration failed:", error);
-            alert("Registration failed. Please try again.");
+            alert(error.response?.data?.message || "Registration failed. Please try again.");
         } finally {
             dispatch(setLoading(false));
         }
