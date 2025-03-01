@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setLoading } from '../state';
-import { ApiClient } from '../../Utils';
+import { ApiClient } from "../../Utils";
 
 const RegisterComponent = () => {
     const loading = useSelector((state) => state.auth.loading);

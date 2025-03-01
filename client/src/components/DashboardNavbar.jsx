@@ -5,7 +5,7 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 import { setLoading } from '../state';
 import PlayLoading from './PlayLoading';
-import { ApiClient } from '../../utils';
+import { ApiClient } from '../../Utils';
 import { FiMenu } from 'react-icons/fi';
 import persistor from '../main';
 import { useNavigate } from 'react-router-dom';

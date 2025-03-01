@@ -19,6 +19,8 @@
     "gridfs-stream": "^1.1.1",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.0",
+    "jspdf-autotable": "^5.0.2",
     "mongoose": "^8.10.0",
     "morgan": "^1.10.0",
     "rimraf": "^6.0.1"

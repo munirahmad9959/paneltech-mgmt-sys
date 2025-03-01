@@ -36,7 +36,11 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 6001;
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {})
+mongoose.connect(process.env.MONGO_URI, {
+  tls: true,  // Ensures TLS is used
+  tlsAllowInvalidCertificates: true // Optional: Ignore invalid certificates
+
+})
   .then(() => {
     app.listen(PORT, () => console.log(`Server running on port: ${PORT} and connected to the database`));
   })
