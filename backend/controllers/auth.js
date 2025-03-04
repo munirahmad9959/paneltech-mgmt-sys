@@ -67,16 +67,27 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid Credentials." });
         }
 
+        // const token = jwt.sign(
+        //     {
+        //         id: user._id,               // Unique user ID
+        //         email: user.email,         // Email claim
+        //         role: user.role,           // Role claim
+        //         userId: user._id.toString() // UserID claim (similar to .NET)
+        //     },
+        //     process.env.JWT_SECRET,
+        //     { expiresIn: "1d" } // Token expiration
+        // );
+
         // Create JWT token with claims
         const token = jwt.sign(
             {
                 id: user._id,               // Unique user ID
                 email: user.email,         // Email claim
                 role: user.role,           // Role claim
-                userId: user._id.toString() // UserID claim (similar to .NET)
+                // UserID claim (similar to .NET)
             },
             process.env.JWT_SECRET,
-            { expiresIn: "1d" } // Token expiration
+            { expiresIn: "7d" } // Token expiration
         );
 
         res.status(200).json({ token, user });

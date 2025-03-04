@@ -89,6 +89,7 @@ export const getAttendanceRecords = async (req, res) => {
   try {
     const { userId } = req.params;
     const isAdmin = req.user.role === "admin" ? "true" : "false";
+    console.log("User ID:", userId);
 
     let records;
     if (isAdmin === "true") {
