@@ -219,7 +219,7 @@
 import React from "react";
 import Slider from "react-slick";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
-import { urls } from "../../Utils";
+import { urls } from "../../Utils/Utils";
 
 const HeroSection = () => {
   // Slider Settings

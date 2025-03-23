@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { ApiClient } from "../../utils";
+import { useDispatch, useSelector } from "react-redux";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { createApiClient } from "../../Utils/Utils";
 
 
 const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
@@ -13,7 +13,8 @@ const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
   const hourlyRate = 10; // Example hourly rate in dollars
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token); // ✨ NEW CODE: Get token from state
-
+  const dispatch = useDispatch();
+  const ApiClient = React.useMemo(() => createApiClient(dispatch), [dispatch]);
   const fetchAttendance = async () => {
     try {
       console.log("User ID:", user._id);

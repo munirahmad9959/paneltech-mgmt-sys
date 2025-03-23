@@ -1,5 +1,5 @@
 import Slider from "react-slick";
-import { projectData } from "../../Utils";
+import { projectData } from "../../Utils/Utils";
 
 
 const ProjectSlider = () => {

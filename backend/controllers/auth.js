@@ -87,7 +87,7 @@ export const login = async (req, res) => {
                 // UserID claim (similar to .NET)
             },
             process.env.JWT_SECRET,
-            { expiresIn: "7d" } // Token expiration
+            { expiresIn: "10s" } // Token expiration
         );
 
         res.status(200).json({ token, user });

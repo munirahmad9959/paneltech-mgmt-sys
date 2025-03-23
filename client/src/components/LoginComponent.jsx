@@ -6,12 +6,13 @@ import { setLoading, setLogin } from '../state';
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
-import { ApiClient } from '../../Utils';
+import { createApiClient } from '../../Utils/Utils';
 
 const LoginComponent = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { register, handleSubmit, formState: { errors } } = useForm();
+    const ApiClient = React.useMemo(() => createApiClient(dispatch), [dispatch]);
 
     const onSubmit = async (data) => {
         dispatch(setLoading(true));

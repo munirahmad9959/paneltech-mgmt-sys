@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setLoading } from '../state';
-import { ApiClient } from "../../Utils";
+import { createApiClient } from '../../Utils/Utils';
 
 const RegisterComponent = () => {
     const loading = useSelector((state) => state.auth.loading);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const ApiClient = React.useMemo(() => createApiClient(dispatch), [dispatch]);
 
     const [formData, setFormData] = useState({
         FullName: '',

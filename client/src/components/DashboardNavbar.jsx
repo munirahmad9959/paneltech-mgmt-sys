@@ -5,7 +5,7 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 import { setLoading } from '../state';
 import PlayLoading from './PlayLoading';
-import { ApiClient } from '../../Utils';
+import { createApiClient } from '../../Utils/Utils';
 import { FiMenu } from 'react-icons/fi';
 import persistor from '../main';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +16,7 @@ const DashboardNavbar = ({ setShowSidebar, navDropDown, setNavDropDown }) => {
     const user = useSelector((state) => state.auth.user);
     const loading = useSelector((state) => state.auth.loading);
     const navigate = useNavigate();
-
+    const ApiClient = React.useMemo(() => createApiClient(dispatch), [dispatch]);
     const handleLogout = async () => {
         dispatch(setLoading(true));
         try {
