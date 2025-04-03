@@ -8,6 +8,7 @@ import UserDashboard from "../components/UserDashboard";
 import AdminDashboardSidebar from "../components/AdminDashboardSidebar";
 import AdminDashboard from "../components/AdminDashboard";
 import EmpAttendance from "../Views/EmpAttendance";
+import LeaveMgmt from "../Views/LeaveMgmt";
 
 const Dashboard = () => {
   const user = useSelector((state) => state.auth.user);
@@ -40,6 +41,8 @@ const Dashboard = () => {
         return <UserDashboard setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
       case "Attendance":
         return <EmpAttendance setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
+      case "Leave":
+        return <LeaveMgmt setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
       default:
         return <div>Invalid View</div>;
     }

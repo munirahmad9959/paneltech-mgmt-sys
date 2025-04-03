@@ -8,6 +8,6 @@ const router = express.Router();
 router.post("/checkin", authenticateUser, authorizeRoles("employee"), checkIn); // ✨ CHANGED CODE: Protect route
 router.post("/checkout", authenticateUser, authorizeRoles("employee"), checkOut); // ✨ CHANGED CODE: Protect route
 
-router.get("/:userId", authenticateUser, authorizeRoles("employee"), getAttendanceRecords); // ✨ CHANGED CODE: Protect route
+router.get("/:userId", authenticateUser, authorizeRoles("employee", "admin"), getAttendanceRecords); // ✨ CHANGED CODE: Protect route
 
 export default router;
