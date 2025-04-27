@@ -243,7 +243,7 @@ const Home = () => {
   }, [dispatch]); // ✅ Add dispatch to dependency array
 
   return (
-    <div className='overflow-x-hidden h-full w-screen'>
+    <div className='overflow-x-hidden h-full'>
       {loading ? (
         <div className="flex justify-center items-center h-screen">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-red-500"></div>

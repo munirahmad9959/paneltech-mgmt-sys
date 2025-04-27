@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { FaFilter } from 'react-icons/fa';
 import { ToastContainer } from 'react-toastify';
 import { toast } from 'react-toastify';
+import Profile from '../Views/Profile';
 
 const UserDashboard = ({ setShowSidebar, setNavDropDown }) => {
     const navigate = useNavigate();
@@ -21,12 +22,14 @@ const UserDashboard = ({ setShowSidebar, setNavDropDown }) => {
             }}>
             <ToastContainer position="top-right" autoClose={3000} />
 
-            <div className="flex justify-center">
+            {/* <div className="flex justify-center">
                 <h1 className="text-3xl font-bold mb-6 text-[#2b2a2a]">User Dashboard</h1>
-            </div>
+            </div> */}
+            <EmployeeProfileView user={{ firstName: "John", lastName: "Doe" }} />
 
         </div>
     );
 };
 
 export default UserDashboard;
+

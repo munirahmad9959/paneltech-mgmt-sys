@@ -11,12 +11,15 @@ import { RxDashboard } from "react-icons/rx";
 import { BsPeople } from "react-icons/bs";
 import { PiAlarm, PiLeaf, PiWallet } from "react-icons/pi";
 import { IoSettingsOutline } from "react-icons/io5";
+import { useSelector } from 'react-redux';
 
 const UserDashboardSidebar = ({ setCurrentView, showSidebar, setShowSidebar }) => {
-    const [activeLink, setActiveLink] = useState("Records");
-
+    const [activeLink, setActiveLink] = useState("Profile");
+    
+    const user = useSelector((state) => state.auth.user);
+    
     const links = [
-        { name: "Employee Management", icon: <BsPeople style={{ fontSize: "1.2rem", marginRight: '5px' }} /> },
+        { name: "Profile", icon: <BsPeople style={{ fontSize: "1.2rem", marginRight: '5px' }} /> },
         { name: "Attendance", icon: <PiAlarm style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
         { name: "Leave", icon: <PiLeaf style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
         { name: "Payroll", icon: <PiWallet style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
@@ -42,7 +45,7 @@ const UserDashboardSidebar = ({ setCurrentView, showSidebar, setShowSidebar }) =
                 <div className="flex flex-col max-w-[240px]">
                     {/* Create Button */}
                     <div className="flex items-center mx-auto">
-                        <div className="flex font-semibold items-center button text-white bg-[#0cad5d] px-5 py-3 mt-3 rounded-md transition duration-200 hover:bg-[#0a9b53] cursor-pointer shadow-lg">
+                        <div className="flex font-semibold items-center button text-white bg-[#0cad5d] px-5 py-3 mt-3 rounded-md transition duration-200 hover:bg-[#0a9b53] shadow-lg">
                             <span className="text-[17px] ml-1 mr-20">Dashboard</span>
                             <span>
                                 <RxDashboard className='font-bold text-xl' />

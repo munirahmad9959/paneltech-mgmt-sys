@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import attendanceRoutes from './routes/attendance.js';
 import leave from './routes/leave.js';
+import userRoutes from './routes/user.js';
 
 dotenv.config();
 
@@ -26,9 +27,11 @@ app.use(cors(
 ));
 
 // Routes
+app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leaves', leave);
+
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

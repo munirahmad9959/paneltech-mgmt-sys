@@ -9,12 +9,14 @@ import AdminDashboardSidebar from "../components/AdminDashboardSidebar";
 import AdminDashboard from "../components/AdminDashboard";
 import EmpAttendance from "../Views/EmpAttendance";
 import LeaveMgmt from "../Views/LeaveMgmt";
+import Profile from "../Views/Profile";
+import PayrollView from "../Views/Payroll";
 
 const Dashboard = () => {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [currentView, setCurrentView] = useState("Records");
+  const [currentView, setCurrentView] = useState("Profile");
   const [showSidebar, setShowSidebar] = useState(false);
   const [navDropDown, setNavDropDown] = useState(false);
 
@@ -37,12 +39,14 @@ const Dashboard = () => {
 
   const renderUserView = () => {
     switch (currentView) {
-      case "Records":
-        return <UserDashboard setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
+      case "Profile":
+        return <Profile user={{ firstName: "John", lastName: "Doe" }} setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
       case "Attendance":
         return <EmpAttendance setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
       case "Leave":
         return <LeaveMgmt setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
+      case "Payroll":
+        return <PayrollView setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
       default:
         return <div>Invalid View</div>;
     }

@@ -9,7 +9,7 @@ const AdminDashboardSidebar = ({ setCurrentView, showSidebar, setShowSidebar }) 
     const [activeLink, setActiveLink] = useState("Records");
 
     const links = [
-        { name: "Records", icon: <TbReport style={{ fontSize: "1.2rem", marginRight: "5px" }} /> },
+        { name: "Profile", icon: <TbReport style={{ fontSize: "1.2rem", marginRight: "5px" }} /> },
         { name: "Add Quizzes", icon: <TbBulbFilled style={{ fontSize: "1rem", marginRight: "9px" }} /> },
         { name: "Reports", icon: <SiGoogleclassroom style={{ fontSize: "1rem", marginRight: "9px" }} /> },
         { name: "Classes", icon: <BiDonateHeart style={{ fontSize: "1rem", marginRight: "9px" }} /> },
