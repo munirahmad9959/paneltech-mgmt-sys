@@ -73,6 +73,7 @@ import authRoutes from './routes/auth.js';
 import attendanceRoutes from './routes/attendance.js';
 import leaveRoutes from './routes/leave.js';
 import userRoutes from './routes/user.js';
+import payrollRoutes from './routes/payroll.js'; // Ensure payrollRoutes is imported
 
 // Shared Multer Middleware
 import { upload } from './middleware/upload.js';
@@ -109,6 +110,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leaves', leaveRoutes);
+app.use('/api/payroll', payrollRoutes); // Ensure payrollRoutes is imported
 
 // Optional standalone upload route (for testing or general use)
 app.post('/api/upload', upload.single('file'), (req, res) => {
