@@ -38,9 +38,9 @@ export const register = async (req, res) => {
                 department: "",
                 position: "",
                 basicSalary: "",
-                joiningDate:  "",
+                joiningDate: "",
                 taxInfo: "",
-                bankDetails:"", 
+                bankDetails: "",
                 cv: ""
             });
 
@@ -56,6 +56,50 @@ export const register = async (req, res) => {
     }
 };
 
+
+// export const login = async (req, res) => {
+//     try {
+//         const { email, password } = req.body;
+//         const user = await User.findOne({ email });
+
+//         if (!user) {
+//             return res.status(400).json({ message: "User does not exist." });
+//         }
+
+//         const isMatch = await bcrypt.compare(password, user.password);
+
+//         if (!isMatch) {
+//             return res.status(400).json({ message: "Invalid Credentials." });
+//         }
+
+//         const token = jwt.sign(
+//             {
+//                 id: user._id,               // Unique user ID
+//                 email: user.email,         // Email claim
+//                 role: user.role,           // Role claim
+//                 // UserID claim (similar to .NET)
+//             },
+//             process.env.JWT_SECRET,
+//             { expiresIn: "1h" } // Token expiration
+//         );
+
+
+//         // res.status(200).json({ token, user });
+//         const employeeData = await Employee.findOne({ userId: user._id }).lean();
+
+//         const fullUserData = {
+//             ...user.toObject(),
+//             ...employeeData
+//         };
+
+//         console.log('User data saved successfully:', fullUserData);
+//         res.status(201).json({ message: 'User data saved successfully!', user: fullUserData });
+
+//     } catch (error) {
+//         console.error("Login Error:", error);
+//         res.status(500).json({ error: error.message });
+//     }
+// };
 
 export const login = async (req, res) => {
     try {
@@ -74,22 +118,34 @@ export const login = async (req, res) => {
 
         const token = jwt.sign(
             {
-                id: user._id,               // Unique user ID
-                email: user.email,         // Email claim
-                role: user.role,           // Role claim
-                // UserID claim (similar to .NET)
+                id: user._id,
+                email: user.email,
+                role: user.role,
             },
             process.env.JWT_SECRET,
-            { expiresIn: "1h" } // Token expiration
+            { expiresIn: "1h" }
         );
 
-        res.status(200).json({ token, user });
+        const employeeData = await Employee.findOne({ userId: user._id }).lean();
+
+        const fullUserData = {
+            user: user.toObject(),           // includes hashed password
+            employee: employeeData || null   // null if not found
+        };
+        console.log('User data:', fullUserData);
+
+        res.status(200).json({
+            message: 'Login successful',
+            token,
+            data: fullUserData
+        });
 
     } catch (error) {
         console.error("Login Error:", error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
 
 export const logout = (req, res) => {
     console.log("Logout Called");

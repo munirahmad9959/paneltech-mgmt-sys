@@ -110,19 +110,48 @@ export const saveUserData = async (req, res) => {
     }
 };
 
+// export const getUserData = async (req, res) => {
+//     try {
+//         const { userId } = req.params;
+//         const user = await User.findById(userId).lean();
+//         if (!user) return res.status(404).json({ message: 'User not found' });
+
+//         // If user is an employee, fetch their employee record
+//         if (user.role === 'employee') {
+//             const employee = await Employee.findOne({ userId }).lean();
+//             return res.status(200).json({ ...user, ...employee });
+//         }
+
+//         res.status(200).json(user);
+//     } catch (error) {
+//         console.error('Error fetching user data in getUserData:', error);
+//         res.status(500).json({ message: 'Server error in getUserData', error: error.message });
+//     }
+// };
+
+
 export const getUserData = async (req, res) => {
     try {
         const { userId } = req.params;
-        const user = await User.findById(userId).lean();
-        if (!user) return res.status(404).json({ message: 'User not found' });
 
-        // If user is an employee, fetch their employee record
-        if (user.role === 'employee') {
-            const employee = await Employee.findOne({ userId }).lean();
-            return res.status(200).json({ ...user, ...employee });
+        const user = await User.findById(userId).lean();
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        res.status(200).json(user);
+        let employee = null;
+
+        if (user.role === 'employee') {
+            employee = await Employee.findOne({ userId: user._id }).lean();
+        }
+
+        const fullUserData = {
+            user,       // includes password hash (as per your preference)
+            employee    // null if not an employee or not found
+        };
+
+        res.status(200).json({ message: 'User data fetched successfully', data: fullUserData });
+
     } catch (error) {
         console.error('Error fetching user data in getUserData:', error);
         res.status(500).json({ message: 'Server error in getUserData', error: error.message });

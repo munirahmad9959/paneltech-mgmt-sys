@@ -6,20 +6,22 @@ import { setLogin, setUser } from '../state';
 
 const Profile = () => {
     const user = useSelector((state) => state.auth.user);
+    console.log("User is from profile section: ", user)
     const [initialLoad, setInitialLoad] = useState(true);
     const dispatch = useDispatch();
+    console.log("Logging user id:", user.user?._id)
 
     const defaultUser = {
-        _id: user?.userId || '',
-        fullName: user?.fullName || '',
-        email: user?.email || '',
-        dateOfBirth: user?.dateOfBirth || '',
-        address: user?.address || '',
-        cnic: user?.cnic || '',
-        profileImage: user?.profileImage || './resources/noavatar.png',
+        _id: user.user?._id || '',
+        fullName: user.user?.fullName || '',
+        email: user.user?.email || '',
+        dateOfBirth: user.user?.dateOfBirth || '',
+        address: user.user?.address || '',
+        cnic: user.user?.cnic || '',
+        profileImage: user.user?.profileImage || './resources/noavatar.png',
         documents: {
-            cnicDoc: user?.cnicDoc || null,
-            cvDoc: user?.cvDoc || null
+            cnicDoc: user.employee?.cnicDoc || null,
+            cvDoc: user.employee?.cvDoc || null
         }
     };
 
@@ -74,21 +76,21 @@ const Profile = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await ApiClient.get(`/user/${user.userId}`);
-                const userData = response.data;
+                const response = await ApiClient.get(`/user/${user.user?._id}`);
+                const userData = response.data.data;
                 console.log('User Data from the Useeffect profile:', userData);
 
                 setFormData({
-                    _id: userData.userId,
-                    fullName: userData.fullName,
-                    email: userData.email,
-                    dateOfBirth: userData.dateOfBirth || '',
-                    address: userData.address || '',
-                    cnic: userData.cnic || '',
-                    profileImage: userData.profileImage || './resources/noavatar.png',
+                    _id: userData.user?._id,
+                    fullName: userData.user?.fullName,
+                    email: userData.user?.email,
+                    dateOfBirth: userData.user?.dateOfBirth || '',
+                    address: userData.user?.address || '',
+                    cnic: userData.user?.cnic || '',
+                    profileImage: userData.user?.profileImage || './resources/noavatar.png',
                     documents: {
-                        cnicDoc: userData.cnicDoc || null,
-                        cvDoc: userData.cvDoc || null
+                        cnicDoc: userData.employee?.cnicDoc || null,
+                        cvDoc: userData.employee?.cvDoc || null
                     }
                 });
 
@@ -105,12 +107,12 @@ const Profile = () => {
         };
 
         fetchUserData();
-    }, [user._id]);
+    }, [user.user?._id]);
 
     const handleSave = async () => {
         try {
             const payload = new FormData();
-            payload.append('_id', user.userId);
+            payload.append('_id', user.user?._id);
             payload.append('fullName', formData.fullName);
             payload.append('email', formData.email);
             payload.append('dateOfBirth', formData.dateOfBirth);
@@ -126,6 +128,8 @@ const Profile = () => {
             if (formData.documents.cvDoc && typeof formData.documents.cvDoc !== 'string') {
                 payload.append('cvDoc', formData.documents.cvDoc);
             }
+
+            console.log('Payload:', payload);
 
             const response = await ApiClient.post('/user/save', payload, {
                 headers: {

@@ -11,6 +11,8 @@ import EmpAttendance from "../Views/EmpAttendance";
 import LeaveMgmt from "../Views/LeaveMgmt";
 import Profile from "../Views/Profile";
 import PayrollView from "../Views/Payroll";
+import AdminProfile from "../Views/AdminProfile";
+import AdminPayroll from "../Views/AdminPayroll";
 
 const Dashboard = () => {
   const user = useSelector((state) => state.auth.user);
@@ -27,10 +29,10 @@ const Dashboard = () => {
 
   const renderAdminView = () => {
     switch (currentView) {
-      case "Records":
-        return <AdminDashboard setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
-      case "Add Quizzes":
-        return <AddQuizForm setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
+      case "Profile":
+        return <AdminProfile setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
+      case "Payroll":
+        return <AdminPayroll setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
       default:
         return <div>Invalid View</div>;
     }
@@ -40,7 +42,7 @@ const Dashboard = () => {
   const renderUserView = () => {
     switch (currentView) {
       case "Profile":
-        return <Profile user={{ firstName: "John", lastName: "Doe" }} setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
+        return <Profile setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
       case "Attendance":
         return <EmpAttendance setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
       case "Leave":
@@ -56,9 +58,9 @@ const Dashboard = () => {
     <>
       <div className="flex">
         {/* Sidebar */}
-        {user.role === "admin" ? (
+        {user.user.role === "admin" ? (
           <AdminDashboardSidebar setCurrentView={setCurrentView} showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
-        ) : user.role === "employee" ? (
+        ) : user.user.role === "employee" ? (
           <UserDashboardSidebar setCurrentView={setCurrentView} showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
         ) : null}
 
@@ -72,10 +74,10 @@ const Dashboard = () => {
 
           {/* Main Content Body */}
           <main className="flex-1 p-1 w-full">
-            {user.role === "employee" ? (
+            {user.user.role === "employee" ? (
               // <UserDashboard setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown}/>
               renderUserView()
-            ) : user.role === "admin" ? (
+            ) : user.user.role === "admin" ? (
               renderAdminView()
             ) : null}
           </main>

@@ -19,9 +19,10 @@ const LoginComponent = () => {
         try {
             const response = await ApiClient.post("/auth/login", data);
             dispatch(setLogin({
-                user: response.data.user,
+                user: response.data.data,
                 token: response.data.token,
             }));
+            console.log("Login successful:", response.data.data);
             navigate("/dashboard");
         } catch (error) {
             console.error("Login error:", error);

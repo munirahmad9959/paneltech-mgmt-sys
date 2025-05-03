@@ -17,7 +17,7 @@ const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
   const ApiClient = React.useMemo(() => createApiClient(dispatch), [dispatch]);
   const fetchAttendance = async () => {
     try {
-      const response = await ApiClient.get(`/attendance/${user.userId}`, {
+      const response = await ApiClient.get(`/attendance/${user.user?._id}`, {
         headers: { Authorization: `Bearer ${token}` }, 
       });
 
@@ -31,7 +31,7 @@ const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
 
   useEffect(() => {
     fetchAttendance();
-  }, [user._id]);
+  }, [user.user?._id]);
 
   const markArrival = async () => {
     try {
@@ -52,7 +52,7 @@ const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
     try {
       const response = await ApiClient.post(
         "/attendance/checkout",
-        { userId: user._id },
+        { userId: user.user?._id },
         { headers: { Authorization: `Bearer ${token}` } } // ✨ CHANGED CODE: Send token
       );
       setDepartureTime(new Date(response.data.attendance.checkOut));
@@ -70,8 +70,8 @@ const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
     doc.setFontSize(18);
     doc.text("Employee Attendance Report", 14, 20);
     doc.setFontSize(12);
-    doc.text(`Employee Name: ${user.fullName}`, 14, 30);
-    doc.text(`Employee ID: ${user._id}`, 14, 38);
+    doc.text(`Employee Name: ${user.user?.fullName}`, 14, 30);
+    doc.text(`Employee ID: ${user.user?._id}`, 14, 38);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 46);
 
     // Table Headers
