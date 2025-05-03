@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { SiGoogleclassroom } from "react-icons/si";
-import { BiDonateHeart } from "react-icons/bi";
-import { BsFillUnlockFill } from "react-icons/bs";
-import { IoIosAdd } from "react-icons/io";
-import { TbReport, TbBulbFilled } from "react-icons/tb";
+import { BsFillUnlockFill, BsPeople } from "react-icons/bs";
+import { IoSettingsOutline } from "react-icons/io5";
+import { PiAlarm, PiLeaf, PiWallet } from "react-icons/pi";
+import { RxDashboard } from "react-icons/rx";
 
 const AdminDashboardSidebar = ({ setCurrentView, showSidebar, setShowSidebar }) => {
     const [activeLink, setActiveLink] = useState("Records");
 
     const links = [
-        { name: "Profile", icon: <TbReport style={{ fontSize: "1.2rem", marginRight: "5px" }} /> },
-        { name: "Add Quizzes", icon: <TbBulbFilled style={{ fontSize: "1rem", marginRight: "9px" }} /> },
-        { name: "Reports", icon: <SiGoogleclassroom style={{ fontSize: "1rem", marginRight: "9px" }} /> },
-        { name: "Classes", icon: <BiDonateHeart style={{ fontSize: "1rem", marginRight: "9px" }} /> },
-        { name: "Accomodations", icon: <BiDonateHeart style={{ fontSize: "1rem", marginRight: '9px' }} /> },
+        { name: "Profile", icon: <BsPeople style={{ fontSize: "1.2rem", marginRight: '5px' }} /> },
+        { name: "Attendance", icon: <PiAlarm style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
+        { name: "Leave", icon: <PiLeaf style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
+        { name: "Payroll", icon: <PiWallet style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
+        { name: "Settings", icon: <IoSettingsOutline style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
     ];
 
     useEffect(() => {
@@ -26,13 +25,13 @@ const AdminDashboardSidebar = ({ setCurrentView, showSidebar, setShowSidebar }) 
                 <img src="https://www.paneltechllc.com/wp-content/themes/paneltec/images/logo.png" alt="logo" className="w-[130px] cursor-pointer" />
             </a>
             <div className="flex flex-col max-w-[240px]">
-                {/* Create Button */}   
+                {/* Create Button */}
                 <div className="flex items-center mx-auto">
-                    <div className="flex font-semibold items-center space-x-1 button text-white px-20 py-3 mt-3 rounded-md transition duration-200 bg-[#7847b8] hover:bg-[#8854c0] cursor-pointer">
+                    <div className="flex font-semibold items-center button text-white bg-[#0cad5d] px-5 py-3 mt-3 rounded-md transition duration-200 hover:bg-[#0a9b53] shadow-lg">
+                        <span className="text-[17px] ml-1 mr-20">Dashboard</span>
                         <span>
-                            <IoIosAdd style={{ fontSize: "1.3rem", strokeWidth: "10px", color: "#fff" }} />
+                            <RxDashboard className='font-bold text-xl' />
                         </span>
-                        <span className="text-[15px]">Create</span>
                     </div>
                 </div>
 
@@ -43,10 +42,10 @@ const AdminDashboardSidebar = ({ setCurrentView, showSidebar, setShowSidebar }) 
                                 key={link.name}
                                 onClick={() => {
                                     setActiveLink(link.name);
-                                    setCurrentView(link.name);
+                                    setCurrentView(link.name); // Updated to set `currentView` 
                                     setShowSidebar(false);
                                 }}
-                                className={`flex items-center space-x-2 text-[16px] p-2 rounded-xl cursor-pointer transition duration-200 ${activeLink === link.name ? "bg-[#F6F0FF] text-[#6A3DA5]" : "hover:bg-[#F6F0FF] hover:text-[#6A3DA5]"
+                                className={`flex items-center space-x-2 text-[16px] p-2 rounded-xl cursor-pointer transition duration-200 ${activeLink === link.name ? "bg-[#F6F0FF] text-[#0a9b53]" : "hover:bg-[#F6F0FF] hover:text-[#0cad5d]"
                                     }`}
                             >
                                 {link.icon}

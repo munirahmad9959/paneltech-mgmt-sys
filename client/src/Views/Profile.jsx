@@ -273,7 +273,12 @@ const Profile = () => {
                         <h2 className="mt-4 text-2xl font-bold text-gray-800">
                             {formData.firstName} {formData.lastName}
                         </h2>
-                        <p className="text-gray-500">Employee</p>
+                        <p className="text-gray-500">
+                            {user.employee?.status
+                                ?.split(' ')
+                                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                                .join(' ')}
+                        </p>
 
                     </div>
 
