@@ -17,21 +17,11 @@ const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
   const ApiClient = React.useMemo(() => createApiClient(dispatch), [dispatch]);
   const fetchAttendance = async () => {
     try {
-      console.log("User ID:", user._id);
-      const response = await ApiClient.get(`/attendance/${user._id}`, {
-        headers: { Authorization: `Bearer ${token}` }, // ✨ CHANGED CODE: Send token with request
+      const response = await ApiClient.get(`/attendance/${user.userId}`, {
+        headers: { Authorization: `Bearer ${token}` }, 
       });
 
       setAttendanceRecords(response.data.attendanceRecords);
-
-      // const latestAttendance = response.data.attendanceRecords[0];
-      // if (latestAttendance) {
-      //   setArrivalTime(new Date(latestAttendance.checkIn));
-      //   if (latestAttendance.checkOut) {
-      //     setDepartureTime(new Date(latestAttendance.checkOut));
-      //     setTotalHours(latestAttendance.totalHours);
-      //   }
-      // }
       console.log("Attendance records:", response.data);
     } catch (error) {
       console.error("Error fetching attendance:", error);
@@ -47,7 +37,7 @@ const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
     try {
       const response = await ApiClient.post(
         "/attendance/checkin",
-        { userId: user._id },
+        { userId: user.userId },
         { headers: { Authorization: `Bearer ${token}` } } // ✨ CHANGED CODE: Send token
       );
       console.log("Check-in response:", response.data);
