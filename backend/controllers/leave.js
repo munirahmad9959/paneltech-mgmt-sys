@@ -1,107 +1,3 @@
-// import Leave from '../models/Leave.js';
-
-// // Apply for leave
-// export const applyLeave = async (req, res) => {
-//     try {
-//         const { startDate, endDate, leaveType, reason } = req.body;
-        
-//         // Validate dates
-//         if (new Date(startDate) > new Date(endDate)) {
-//             return res.status(400).json({ error: "End date must be after start date" });
-//         }
-
-//         const leave = new Leave({ 
-//             startDate,
-//             endDate,
-//             leaveType,
-//             reason,
-//             employeeId: req.user.id 
-//         });
-
-//         await leave.save();
-//         res.status(201).json(leave);
-//     } catch (err) {
-//         res.status(500).json({ error: err.message });
-//     }
-// };
-
-// // Get all leaves (with filtering for employee if not admin)
-// export const getLeaves = async (req, res) => {
-//     try {
-//         let query = {};
-        
-//         // If not admin, only show the employee's own leaves
-//         if (req.user.role !== 'admin') {
-//             query.employeeId = req.user.id;
-//         }
-
-//         const leaves = await Leave.find(query)
-//             .sort({ createdAt: -1 })
-//             .populate('employeeId', 'name email');
-            
-//         res.json(leaves);
-//     } catch (err) {
-//         res.status(500).json({ error: err.message });
-//     }
-// };
-
-// // Update leave status (admin only)
-// export const updateLeaveStatus = async (req, res) => {
-//     try {
-//         // Only allow admins to update status
-//         if (req.user.role !== 'admin') {
-//             return res.status(403).json({ error: "Only admins can update leave status" });
-//         }
-
-//         const { status } = req.body;
-//         const validStatuses = ['Approved', 'Rejected'];
-        
-//         if (!validStatuses.includes(status)) {
-//             return res.status(400).json({ error: "Invalid status value" });
-//         }
-
-//         const leave = await Leave.findByIdAndUpdate(
-//             req.params.id,
-//             { status },
-//             { new: true }
-//         ).populate('employeeId', 'name email');
-
-//         if (!leave) {
-//             return res.status(404).json({ error: "Leave not found" });
-//         }
-
-//         res.json(leave);
-//     } catch (err) {
-//         res.status(500).json({ error: err.message });
-//     }
-// };
-
-// // Cancel leave (employee only)
-// export const cancelLeave = async (req, res) => {
-//     try {
-//         const leave = await Leave.findById(req.params.id);
-        
-//         if (!leave) {
-//             return res.status(404).json({ error: "Leave not found" });
-//         }
-
-//         // Only the employee who created the leave can cancel it
-//         if (leave.employeeId.toString() !== req.user.id) {
-//             return res.status(403).json({ error: "Not authorized to cancel this leave" });
-//         }
-
-//         // Only pending leaves can be cancelled
-//         if (leave.status !== 'Pending') {
-//             return res.status(400).json({ error: "Only pending leaves can be cancelled" });
-//         }
-
-//         await leave.remove();
-//         res.json({ message: "Leave cancelled successfully" });
-//     } catch (err) {
-//         res.status(500).json({ error: err.message });
-//     }
-// };
-
 import Leave from '../models/Leave.js';
 import mongoose from 'mongoose';
 import moment from 'moment';
@@ -145,9 +41,10 @@ export const getLeaves = async (req, res) => {
         const { page = 1, limit = 10 } = req.query;
         const leaves = await Leave.find(query)
             .sort({ createdAt: -1 })
-            .populate('employeeId', 'name email')
+            .populate('employeeId', 'fullName email profileImage')
             .limit(Number(limit))
             .skip((Number(page) - 1) * Number(limit));
+        console.log(leaves);
 
         const totalLeaves = await Leave.countDocuments(query);
 

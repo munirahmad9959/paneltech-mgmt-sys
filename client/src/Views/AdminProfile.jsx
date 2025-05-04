@@ -149,7 +149,7 @@ const AdminProfile = () => {
       {/* Header with Edit Button*/}
       <div className="p-3 flex justify-between items-center">
         <div className='text-[#2b2a2a]'>
-          <h1 className="text-3xl font-bold ">Employee Profile</h1>
+          <h1 className="text-3xl font-bold ">Admin Profile</h1>
           <p className="text-blue-600 opacity-90 pt-2">View and update your personal information</p>
         </div>
         {!isEditing ? (

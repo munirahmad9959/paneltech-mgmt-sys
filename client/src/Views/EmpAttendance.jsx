@@ -37,8 +37,8 @@ const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
     try {
       const response = await ApiClient.post(
         "/attendance/checkin",
-        { userId: user.userId },
-        { headers: { Authorization: `Bearer ${token}` } } // ✨ CHANGED CODE: Send token
+        { userId: user.user?._id },
+        { headers: { Authorization: `Bearer ${token}` } } 
       );
       console.log("Check-in response:", response.data);
       setArrivalTime(new Date(response.data.attendance.checkIn));
@@ -53,7 +53,7 @@ const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
       const response = await ApiClient.post(
         "/attendance/checkout",
         { userId: user.user?._id },
-        { headers: { Authorization: `Bearer ${token}` } } // ✨ CHANGED CODE: Send token
+        { headers: { Authorization: `Bearer ${token}` } } 
       );
       setDepartureTime(new Date(response.data.attendance.checkOut));
       setTotalHours(response.data.attendance.totalHours);
@@ -74,7 +74,6 @@ const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
     doc.text(`Employee ID: ${user.user?._id}`, 14, 38);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 46);
 
-    // Table Headers
     const tableColumn = ["Date", "Check-in", "Check-out", "Total Hours"];
     const tableRows = [];
 
@@ -88,14 +87,13 @@ const EmpAttendance = ({ setShowSidebar, setNavDropDown }) => {
       tableRows.push(recordData);
     });
 
-    // ✅ Use autoTable correctly
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 50,
     });
 
-    doc.save("Attendance_Report.pdf"); // Save the PDF
+    doc.save("Attendance_Report.pdf"); 
   };
 
   return (

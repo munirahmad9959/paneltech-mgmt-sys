@@ -1,23 +1,25 @@
 import express from 'express';
 import {
-  getCurrentPayroll,
+  calculateCurrentPayroll,
+  getPayrollByPeriod,
   getPayrollHistory,
-  generatePayroll,
-  processPayrollPayment,
-  getPayrollByPeriod
+  approvePayroll,
+  rejectPayroll,
+  recalculatePayroll,
 } from '../controllers/payrollController.js';
-import { authenticateUser } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
+import { authenticateUser } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Employee routes
-router.get('/current', authenticateUser, authorizeRoles("employee"), getCurrentPayroll);
-router.get('/history', authenticateUser, authorizeRoles("employee"), getPayrollHistory);
-router.get('/:month/:year', authenticateUser, authorizeRoles("employee"), getPayrollByPeriod);
+router.get('/current', authenticateUser, calculateCurrentPayroll);
+router.get('/history', authenticateUser, getPayrollHistory);
+router.get('/:month/:year', authenticateUser, getPayrollByPeriod);
 
 // Admin routes
-router.post('/generate', authenticateUser, authorizeRoles("admin"), generatePayroll);
-router.post('/process', authenticateUser, authorizeRoles("admin"), processPayrollPayment);
+router.put('/:payrollId/approve', authenticateUser, authorizeRoles("admin"), approvePayroll);
+router.put('/:payrollId/reject', authenticateUser, authorizeRoles("admin"), rejectPayroll);
+router.put('/:payrollId/recalculate', authenticateUser, authorizeRoles("admin"), recalculatePayroll);
 
 export default router;

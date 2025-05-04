@@ -15,7 +15,6 @@ const RegisterComponent = () => {
         Email: '',
         Password: '',
         ConfirmPassword: '',
-        PicturePath: '',
         Role: 'employee',
     });
 
