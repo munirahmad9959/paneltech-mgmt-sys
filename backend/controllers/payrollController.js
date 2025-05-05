@@ -4,17 +4,124 @@ import Payroll from '../models/Payroll.js';
 import Attendance from '../models/Attendance.js';
 import PayrollHistory from '../models/PayrollHistory.js';
 
+// export const calculateCurrentPayroll = async (req, res) => {
+//   try {
+//     const { emp_id } = req.query;
+//     console.log("Request query result from the calculatePayroll:", req.query); // Debugging line
+
+//     if (!emp_id) {
+//       return res.status(400).json({ success: false, message: 'Employee ID is required' });
+//     }
+
+//     const employee = await Employee.findById(emp_id).populate('userId');
+//     console.log("Employee found:", employee); // Debugging line
+//     if (!employee) {
+//       return res.status(404).json({ success: false, message: 'Employee not found' });
+//     }
+
+//     if (!employee.hourlyRate) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Hourly rate not set for this employee. Please contact admin.'
+//       });
+//     }
+
+//     const currentDate = new Date();
+//     const month = currentDate.getMonth() + 1;
+//     const year = currentDate.getFullYear();
+
+//     // Check if payroll already exists
+//     const existingPayroll = await Payroll.findOne({
+//       employeeId: emp_id,
+//       month,
+//       year
+//     }).populate('employeeId');
+
+//     if (existingPayroll) {
+//       return res.status(200).json({
+//         success: true,
+//         payroll: existingPayroll
+//       });
+//     }
+
+//     // Calculate hours worked from attendance
+//     const startDate = new Date(year, month - 1, 1);
+//     const endDate = new Date(year, month, 0, 23, 59, 59);
+
+//     const attendanceRecords = await Attendance.find({
+//       employeeId: emp_id,
+//       date: { $gte: startDate, $lte: endDate },
+//       checkOut: { $ne: null }
+//     });
+
+//     let totalRegularHours = 0;
+//     let totalOvertimeHours = 0;
+
+//     attendanceRecords.forEach(record => {
+//       const hoursWorked = record.totalHours;
+
+//       if (hoursWorked <= 8) {
+//         totalRegularHours += hoursWorked;
+//       } else {
+//         totalRegularHours += 8;
+//         totalOvertimeHours += (hoursWorked - 8);
+//       }
+//     });
+
+//     // Calculate payroll
+//     const regularPay = totalRegularHours * employee.hourlyRate;
+//     const overtimePay = totalOvertimeHours * employee.overtimeHourlyRate;
+//     const grossPay = regularPay + overtimePay + (employee.allowances || 0);
+//     const tax = grossPay * (employee.taxInfo?.taxRate || 0.15);
+//     const netPay = grossPay - tax - (employee.deductions || 0);
+
+//     // Create payroll record
+//     const payroll = new Payroll({
+//       employeeId: emp_id,
+//       month,
+//       year,
+//       regularHours: totalRegularHours,
+//       overtimeHours: totalOvertimeHours,
+//       regularPay,
+//       overtimePay,
+//       allowances: employee.allowances || 0,
+//       bonuses: 0,
+//       deductions: employee.deductions || 0,
+//       tax,
+//       netPay,
+//       status: 'pending'
+//     });
+
+//     await payroll.save();
+//     await payroll.populate('employeeId'); // Ensure populated before returning
+
+//     console.log("Payroll calculated successfully:", payroll); // Debugging line
+
+//     res.status(200).json({
+//       success: true,
+//       payroll
+//     });
+
+//   } catch (error) {
+//     console.error('Error calculating payroll:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: error.message || 'Failed to calculate payroll'
+//     });
+//   }
+// };
+
+// Get payroll for specific month/year
+
 export const calculateCurrentPayroll = async (req, res) => {
   try {
     const { emp_id } = req.query;
-    console.log("Request query result from the calculatePayroll:", req.query); // Debugging line
 
     if (!emp_id) {
       return res.status(400).json({ success: false, message: 'Employee ID is required' });
     }
 
     const employee = await Employee.findById(emp_id).populate('userId');
-    console.log("Employee found:", employee); // Debugging line
     if (!employee) {
       return res.status(404).json({ success: false, message: 'Employee not found' });
     }
@@ -30,28 +137,14 @@ export const calculateCurrentPayroll = async (req, res) => {
     const month = currentDate.getMonth() + 1;
     const year = currentDate.getFullYear();
 
-    // Check if payroll already exists
-    const existingPayroll = await Payroll.findOne({
-      employeeId: emp_id,
-      month,
-      year
-    }).populate('employeeId');
-
-    if (existingPayroll) {
-      return res.status(200).json({
-        success: true,
-        payroll: existingPayroll
-      });
-    }
-
-    // Calculate hours worked from attendance
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0, 23, 59, 59);
+    // Calculate hours worked from attendance (UTC timezone-safe)
+    const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
+    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
 
     const attendanceRecords = await Attendance.find({
       employeeId: emp_id,
       date: { $gte: startDate, $lte: endDate },
-      checkOut: { $ne: null }
+      checkOut: { $ne: null } // Only count completed shifts
     });
 
     let totalRegularHours = 0;
@@ -59,7 +152,6 @@ export const calculateCurrentPayroll = async (req, res) => {
 
     attendanceRecords.forEach(record => {
       const hoursWorked = record.totalHours;
-
       if (hoursWorked <= 8) {
         totalRegularHours += hoursWorked;
       } else {
@@ -75,27 +167,26 @@ export const calculateCurrentPayroll = async (req, res) => {
     const tax = grossPay * (employee.taxInfo?.taxRate || 0.15);
     const netPay = grossPay - tax - (employee.deductions || 0);
 
-    // Create payroll record
-    const payroll = new Payroll({
-      employeeId: emp_id,
-      month,
-      year,
-      regularHours: totalRegularHours,
-      overtimeHours: totalOvertimeHours,
-      regularPay,
-      overtimePay,
-      allowances: employee.allowances || 0,
-      bonuses: 0,
-      deductions: employee.deductions || 0,
-      tax,
-      netPay,
-      status: 'pending'
-    });
-
-    await payroll.save();
-    await payroll.populate('employeeId'); // Ensure populated before returning
-
-    console.log("Payroll calculated successfully:", payroll); // Debugging line
+    // Upsert payroll record (update if exists, otherwise create)
+    const payroll = await Payroll.findOneAndUpdate(
+      { employeeId: emp_id, month, year },
+      {
+        employeeId: emp_id,
+        month,
+        year,
+        regularHours: totalRegularHours,
+        overtimeHours: totalOvertimeHours,
+        regularPay,
+        overtimePay,
+        allowances: employee.allowances || 0,
+        bonuses: 0,
+        deductions: employee.deductions || 0,
+        tax,
+        netPay,
+        status: 'pending'
+      },
+      { upsert: true, new: true }
+    ).populate('employeeId');
 
     res.status(200).json({
       success: true,
@@ -111,7 +202,6 @@ export const calculateCurrentPayroll = async (req, res) => {
   }
 };
 
-// Get payroll for specific month/year
 export const getPayrollByPeriod = async (req, res) => {
   try {
     const { month, year } = req.params;
