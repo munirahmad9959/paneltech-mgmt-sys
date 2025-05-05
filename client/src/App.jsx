@@ -30,6 +30,7 @@ const App = () => {
           {/* Protected Route (Only logged-in users can access) */}
           <Route element={<ProtectedRoute />}>    // did this just for testing purpose don't forget to uncomment this and remove the following code
             <Route path="/dashboard" element={<Dashboard />} />
+            {/* <Route path="/admin/employees/" element={<Dashboard />} /> */}
           </Route>
 
           {/* Catch-all route for 404 */}

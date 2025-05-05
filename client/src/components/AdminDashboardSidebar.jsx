@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { BsFillUnlockFill, BsPeople } from "react-icons/bs";
-import { IoSettingsOutline } from "react-icons/io5";
+import { BsFillUnlockFill } from "react-icons/bs";
 import { PiAlarm, PiLeaf, PiWallet } from "react-icons/pi";
 import { RxDashboard } from "react-icons/rx";
+import { GrGroup } from "react-icons/gr";
+import { IoPersonOutline } from "react-icons/io5";
 
 const AdminDashboardSidebar = ({ setCurrentView, showSidebar, setShowSidebar }) => {
     const [activeLink, setActiveLink] = useState("Records");
 
     const links = [
-        { name: "Profile", icon: <BsPeople style={{ fontSize: "1.2rem", marginRight: '5px' }} /> },
+        { name: "Profile", icon: <IoPersonOutline style={{ fontSize: "1.2rem", marginRight: '5px' }} /> },
         { name: "Attendance", icon: <PiAlarm style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
         { name: "Leave", icon: <PiLeaf style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
         { name: "Payroll", icon: <PiWallet style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
-        { name: "Settings", icon: <IoSettingsOutline style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
+        { name: "Employee List", icon: <GrGroup style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
     ];
 
     useEffect(() => {

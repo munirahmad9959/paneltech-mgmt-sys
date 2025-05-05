@@ -147,6 +147,11 @@ const EmployeeSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  profileStatus: {
+    type: String,
+    enum: ['complete', 'incomplete'],
+    default: 'incomplete'
+  },
   // Admin-only fields
   department: {
     type: String,

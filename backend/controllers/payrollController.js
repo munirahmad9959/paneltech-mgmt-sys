@@ -509,3 +509,95 @@ export const recalculatePayroll = async (req, res) => {
 //   }
 // };
 
+
+export const getPayrollHistoryByStatus = async (req, res) => {
+  try {
+    console.log("Inside the getPayrollHistoryByStatus function");
+    
+    // Get all payroll histories with status paid or cancelled
+    const payrollHistories = await PayrollHistory.aggregate([
+      {
+        $match: { 
+          status: { $in: ['paid', 'cancelled'] } 
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          month: 1,
+          year: 1,
+          netPay: 1,
+          status: 1,
+          paymentDate: 1,
+          'user._id': 1
+        }
+      },
+      { $sort: { year: -1, month: -1 } }
+    ]);
+
+    console.log("Payroll histories fetched:", payrollHistories);
+
+    // Group by month/year period
+    const groupedByPeriod = payrollHistories.reduce((acc, payroll) => {
+      const monthNames = ["January", "February", "March", "April", "May", "June", 
+                         "July", "August", "September", "October", "November", "December"];
+      const periodName = `${monthNames[payroll.month - 1]} ${payroll.year}`;
+      
+      if (!acc[periodName]) {
+        acc[periodName] = {
+          period: periodName,
+          employeesPaid: new Set(), // Using Set to avoid duplicate employees
+          totalAmount: 0,
+          processedOn: payroll.paymentDate,
+          status: 'Completed' // Assuming all are completed as per your image
+        };
+      }
+
+      // Add employee to the Set
+      acc[periodName].employeesPaid.add(payroll.user._id.toString());
+      
+      // Sum up total amount
+      acc[periodName].totalAmount += payroll.netPay;
+      
+      // Update processedOn to the latest date
+      if (new Date(payroll.paymentDate) > new Date(acc[periodName].processedOn)) {
+        acc[periodName].processedOn = payroll.paymentDate;
+      }
+
+      return acc;
+    }, {});
+
+    // Convert to array format and transform for frontend
+    const result = Object.values(groupedByPeriod).map(period => ({
+      period: period.period,
+      employeesPaid: `${period.employeesPaid.size} employees`,
+      totalAmount: `Rs. ${period.totalAmount.toLocaleString('en-IN')}`,
+      processedOn: period.processedOn.toISOString().split('T')[0].replace(/-/g, '–'), // Format as "2023–10–30"
+      status: period.status,
+      actions: {
+        view: true,
+        download: true
+      }
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('Error fetching payroll history:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to fetch payroll history'
+    });
+  }
+};

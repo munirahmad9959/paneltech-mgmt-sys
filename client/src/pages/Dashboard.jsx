@@ -15,6 +15,7 @@ import AdminProfile from "../Views/AdminProfile";
 import AdminPayroll from "../Views/AdminPayroll";
 import AdminAttendance from "../Views/AdminAttendance";
 import AdminLeave from "../Views/AdminLeave";
+import EmployeeListView from "../Views/EmployeeListView";
 
 const Dashboard = () => {
   const user = useSelector((state) => state.auth.user);
@@ -39,6 +40,8 @@ const Dashboard = () => {
         return <AdminLeave setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
       case "Payroll":
         return <AdminPayroll setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
+      case "Employee List":
+        return <EmployeeListView setShowSidebar={setShowSidebar} setNavDropDown={setNavDropDown} />;
       default:
         return <div>Invalid View</div>;
     }
