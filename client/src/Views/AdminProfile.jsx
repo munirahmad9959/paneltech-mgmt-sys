@@ -202,7 +202,7 @@ const AdminProfile = () => {
                   />
                 ) : (
                   <img
-                    src="./resources/noavatar.png"
+                    src={`http://localhost:3000/uploads/noavatar.png`}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />

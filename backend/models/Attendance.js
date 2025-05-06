@@ -102,7 +102,8 @@ attendanceSchema.post('save', async function (doc) {
 
       // 4. Calculate payroll values
       const regularPay = totalRegularHours * employee.hourlyRate;
-      const overtimePay = totalOvertimeHours * employee.overtimeHourlyRate;
+      const overtimePay = totalOvertimeHours * employee.overtimeHourlyRate; // overtimeHourlyRate is a virtual field in Employee model if this doesn't work then you can use the following line 
+      // const overtimePay = totalOvertimeHours * (employee.hourlyRate * employee.overtimeRate);
       const grossPay = regularPay + overtimePay + (employee.allowances || 0);
       const tax = grossPay * (employee.taxInfo?.taxRate || 0.15);
       const netPay = grossPay - tax - (employee.deductions || 0);
