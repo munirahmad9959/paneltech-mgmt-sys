@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { TiHome } from "react-icons/ti";
-import { FaBook, FaChartPie } from "react-icons/fa";
-import { SiGoogleclassroom } from "react-icons/si";
-import { BiDonateHeart } from "react-icons/bi";
-import { BsFillUnlockFill } from "react-icons/bs";
-import { IoIosAdd } from "react-icons/io";
-import { TbReport } from "react-icons/tb";
-import { IoIosClose } from "react-icons/io";
 import { RxDashboard } from "react-icons/rx";
 import { BsPeople } from "react-icons/bs";
 import { PiAlarm, PiLeaf, PiWallet } from "react-icons/pi";
-import { IoSettingsOutline } from "react-icons/io5";
 import { useSelector } from 'react-redux';
 
 const UserDashboardSidebar = ({ setCurrentView, showSidebar, setShowSidebar }) => {
@@ -23,12 +14,10 @@ const UserDashboardSidebar = ({ setCurrentView, showSidebar, setShowSidebar }) =
         { name: "Attendance", icon: <PiAlarm style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
         { name: "Leave", icon: <PiLeaf style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
         { name: "Payroll", icon: <PiWallet style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
-        { name: "Settings", icon: <IoSettingsOutline style={{ fontSize: "1.4rem", marginRight: '9px' }} /> },
     ];
 
     useEffect(() => {
         setActiveLink(activeLink);
-        console.log(activeLink);
     }, [activeLink]);
 
     return (
@@ -70,15 +59,6 @@ const UserDashboardSidebar = ({ setCurrentView, showSidebar, setShowSidebar }) =
                                 </li>
                             ))}
                         </ul>
-                        <div className="bottomElements w-full">
-                            <span className="ml-2 text-[#000]">0/20 activities created</span>
-                            <div className="flex justify-center items-center mx-auto">
-                                <div className="flex font-semibold items-center space-x-1 button text-black px-[76px] py-3 mt-3 rounded-md transition duration-200 bg-[#ffc933] hover:bg-[#fdd356] cursor-pointer">
-                                    <span><BsFillUnlockFill /></span>
-                                    <span className="text-[15px]">Upgrade</span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </aside>

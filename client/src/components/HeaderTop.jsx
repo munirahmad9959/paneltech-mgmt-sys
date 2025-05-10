@@ -1,12 +1,12 @@
-import { FaPhone, FaFacebook, FaTwitter } from "react-icons/fa";
+import { FaFacebook, FaTwitter } from "react-icons/fa";
 import { MdLocalPhone } from "react-icons/md";
 
 const HeaderTop = () => {
   return (
-    <div className="bg-gray-900 text-white py-3 fixed left-0 z-999 top-0 w-screen overflow-x-hidden">
-      <div className="container mx-auto px-4">
+    <div className="bg-gray-900 text-white pt-3 pb-4 md:py-3 md:fixed left-0 z-999 top-0 w-screen overflow-x-hidden">
+      <div className="container mx-auto px-4 ">
         <div className="flex flex-wrap justify-between items-center">
-          
+
           {/* Contact Information */}
           <div className="flex space-x-4">
             <div className="flex items-center space-x-2">
@@ -30,9 +30,8 @@ const HeaderTop = () => {
           </div>
 
           {/* Language Selection */}
-          <div className="flex space-x-2">
+          <div className="w-full flex justify-center mt-3 md:mt-0 md:w-auto">
             <a href="https://www.paneltechllc.com/en/" className="bg-red-600 px-3 py-1 text-sm font-semibold rounded">English</a>
-            <a href="https://www.paneltechllc.com/ar/" className="bg-red-600 px-3 py-1 text-sm font-semibold rounded">العربية</a>
           </div>
 
         </div>

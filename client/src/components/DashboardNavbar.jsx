@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setLogout } from '../state';
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 import { setLoading } from '../state';
-import PlayLoading from './PlayLoading';
 import { createApiClient } from '../../Utils/Utils';
 import { FiMenu } from 'react-icons/fi';
 import persistor from '../main';
 import { useNavigate } from 'react-router-dom';
-
+import PlayLoading from './PlayLoading';
 
 const DashboardNavbar = ({ setShowSidebar, navDropDown, setNavDropDown }) => {
     const dispatch = useDispatch();
@@ -17,6 +16,8 @@ const DashboardNavbar = ({ setShowSidebar, navDropDown, setNavDropDown }) => {
     const loading = useSelector((state) => state.auth.loading);
     const navigate = useNavigate();
     const ApiClient = React.useMemo(() => createApiClient(dispatch), [dispatch]);
+
+
     const handleLogout = async () => {
         dispatch(setLoading(true));
         try {
@@ -33,9 +34,11 @@ const DashboardNavbar = ({ setShowSidebar, navDropDown, setNavDropDown }) => {
         }
     };
 
+
     const toggleDropdown = () => {
         setNavDropDown(!navDropDown);
     };
+
 
     return (
         <>
@@ -50,13 +53,8 @@ const DashboardNavbar = ({ setShowSidebar, navDropDown, setNavDropDown }) => {
                     <FiMenu className="text-2xl text-gray-700" />
                 </button>
 
-                {/* Right section: Notifications, Help, and User Dropdown */}
+                {/* Right section: User Dropdown */}
                 <div className="space-x-3 flex ml-auto items-center">
-                    <button className="border border-[#bababa] rounded-lg px-2 py-1">
-                        <IoMdNotificationsOutline style={{ fontSize: "1.5rem", color: "#666" }} />
-                    </button>
-                    <button className="px-3 py-1 border border-[#bababa] text-[#666] rounded-lg hidden sm:block">Enter Code</button>
-                    <button className="px-3 py-1 border border-[#bababa] text-[#666] rounded-lg hidden sm:block">Get Help</button>
                     {/* Dropdown Button */}
                     <div className="relative">
                         <button
@@ -65,7 +63,15 @@ const DashboardNavbar = ({ setShowSidebar, navDropDown, setNavDropDown }) => {
                             className="px-3 py-1 border border-[#bababa] text-[#666] rounded-3xl flex items-center bg-white hover:bg-gray-100 cursor-pointer"
                             type="button"
                         >
-                            <img src="./resources/avatar.png" className="w-[20px]" alt="User Avatar" />
+                            {user.user?.profileImage ? (
+                                <img
+                                    src={`http://localhost:3000${user.user?.profileImage}`}
+                                    alt="User Avatar"
+                                    className="w-[20px] h-[20px] rounded-full"
+                                />
+                            ) : (
+                                <img src={`http://localhost:3000/uploads/noavatar.png`} alt="" />
+                            )}
                             <IoIosArrowDown
                                 className={`ml-2 transition-transform duration-300 ${navDropDown ? "rotate-180" : ""}`}
                             />
@@ -75,33 +81,18 @@ const DashboardNavbar = ({ setShowSidebar, navDropDown, setNavDropDown }) => {
                             <div
                                 id="dropdownInformation"
                                 className="absolute z-10 mt-2 right-0 bg-white rounded-lg shadow w-44"
-                                style={{ borderColor: "#cecece" }} // Divider color applied only to specific sections
+                                style={{ borderColor: "#cecece" }} 
                             >
                                 {/* User Info Section */}
                                 <div className="px-4 py-3 text-sm text-gray-900 border-b" style={{ borderColor: "#cecece" }}>
-                                    <div>{user.fullName}</div>
-                                    <div className="font-medium truncate font-sans text-[12px]">{user.Email}</div>
+                                    <div>{user.user?.fullName}</div>
+                                    <div className="font-medium truncate font-sans text-[12px] text-blue-500 cursor-pointer"><a href={`mailto:${user.user?.email}`}>{user.user?.email}</a></div>
                                 </div>
                                 {/* Links Section */}
                                 <ul
                                     className="py-2 text-sm text-gray-700"
                                     aria-labelledby="dropdownInformationButton"
                                 >
-                                    <li>
-                                        <a href="#" className="block px-4 py-2 hover:bg-gray-100 hover:text-gray-900">
-                                            Dashboard
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" className="block px-4 py-2 hover:bg-gray-100 hover:text-gray-900">
-                                            Settings
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" className="block px-4 py-2 hover:bg-gray-100 hover:text-gray-900">
-                                            Earnings
-                                        </a>
-                                    </li>
                                     <li>
                                         <a href="#" className="block px-4 py-2 hover:bg-gray-100 hover:text-gray-900" onClick={handleLogout}>
                                             Sign out

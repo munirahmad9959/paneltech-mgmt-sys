@@ -5,7 +5,7 @@ import { createApiClient } from '../../Utils/Utils';
 import { useDispatch, useSelector } from 'react-redux';
 
 
-const LeaveMgmt = () => {
+const LeaveMgmt = ({ setShowSidebar, setNavDropDown }) => {
   const [showModal, setShowModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [leaves, setLeaves] = useState([]);
@@ -136,7 +136,11 @@ const LeaveMgmt = () => {
 
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gray-50 min-h-screen"
+      onClick={() => {
+        setShowSidebar(false);
+        setNavDropDown(false);
+      }}>
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Leave Management</h1>

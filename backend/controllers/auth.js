@@ -14,24 +14,20 @@ export const register = async (req, res) => {
             return res.status(400).json({ message: "All fields are required." });
         }
 
-        // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "User already exists." });
         }
 
-        // Hash password
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
         console.log("Password hash:", passwordHash);
 
-        // Save new user
         const newUser = new User({ fullName, email, password: passwordHash, role: role || "employee" });
 
         const savedUser = await newUser.save();
         console.log("User registered successfully:", savedUser);
 
-        // If user is of role "user", add them to Employee collection
         if (savedUser.role === "employee") {
             const newEmployee = new Employee({
                 userId: savedUser._id,
@@ -55,51 +51,6 @@ export const register = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-
-
-// export const login = async (req, res) => {
-//     try {
-//         const { email, password } = req.body;
-//         const user = await User.findOne({ email });
-
-//         if (!user) {
-//             return res.status(400).json({ message: "User does not exist." });
-//         }
-
-//         const isMatch = await bcrypt.compare(password, user.password);
-
-//         if (!isMatch) {
-//             return res.status(400).json({ message: "Invalid Credentials." });
-//         }
-
-//         const token = jwt.sign(
-//             {
-//                 id: user._id,               // Unique user ID
-//                 email: user.email,         // Email claim
-//                 role: user.role,           // Role claim
-//                 // UserID claim (similar to .NET)
-//             },
-//             process.env.JWT_SECRET,
-//             { expiresIn: "1h" } // Token expiration
-//         );
-
-
-//         // res.status(200).json({ token, user });
-//         const employeeData = await Employee.findOne({ userId: user._id }).lean();
-
-//         const fullUserData = {
-//             ...user.toObject(),
-//             ...employeeData
-//         };
-
-//         console.log('User data saved successfully:', fullUserData);
-//         res.status(201).json({ message: 'User data saved successfully!', user: fullUserData });
-
-//     } catch (error) {
-//         console.error("Login Error:", error);
-//         res.status(500).json({ error: error.message });
-//     }
-// };
 
 export const login = async (req, res) => {
     try {
@@ -129,8 +80,8 @@ export const login = async (req, res) => {
         const employeeData = await Employee.findOne({ userId: user._id }).lean();
 
         const fullUserData = {
-            user: user.toObject(),           // includes hashed password
-            employee: employeeData || null   // null if not found
+            user: user.toObject(),           
+            employee: employeeData || null  
         };
         console.log('User data:', fullUserData);
 

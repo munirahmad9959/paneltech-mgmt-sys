@@ -1,439 +1,17 @@
-// import React, { useState, useEffect } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { createApiClient } from '../../Utils/Utils';
-// import { toast } from 'react-toastify';
-// import { useDispatch, useSelector } from 'react-redux';
-
-// const EmployeeListView = () => {
-//     const [employees, setEmployees] = useState([]);
-//     const [loading, setLoading] = useState(true);
-//     const [searchTerm, setSearchTerm] = useState('');
-//     const [selectedEmployee, setSelectedEmployee] = useState(null);
-//     const [isModalOpen, setIsModalOpen] = useState(false);
-//     const [formData, setFormData] = useState({});
-//     const [saving, setSaving] = useState(false);
-//     const navigate = useNavigate();
-//     const token = useSelector((state) => state.auth.token);
-//     const dispatch = useDispatch();
-//     const ApiClient = React.useMemo(() => createApiClient(dispatch), [dispatch]);
-
-//     useEffect(() => {
-//         const fetchEmployees = async () => {
-//             try {
-//                 setLoading(true);
-//                 const response = await ApiClient.get('/employees', {
-//                     headers: { Authorization: `bearer ${token}` }
-//                 });
-//                 setEmployees(response.data.data);
-//             } catch (error) {
-//                 toast.error('Failed to fetch employees');
-//                 console.error('Error:', error);
-//             } finally {
-//                 setLoading(false);
-//             }
-//         };
-
-//         fetchEmployees();
-//     }, [token, ApiClient]);
-
-//     const filteredEmployees = employees.filter(employee =>
-//         employee.user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//         employee.user.email.toLowerCase().includes(searchTerm.toLowerCase())
-//     );
-
-//     const handleEmployeeClick = (employeeId) => {
-//         navigate(`/admin/employees/${employeeId}`);
-//     };
-
-//     const handleActionButtonClick = (employee, e) => {
-//         e.stopPropagation();
-//         setSelectedEmployee(employee);
-//         setFormData({
-//             department: employee.department || '',
-//             position: employee.position || '',
-//             status: employee.status || 'active',
-//             hourlyRate: employee.hourlyRate || 0,
-//             joiningDate: employee.joiningDate?.split('T')[0] || '',
-//             taxInfo: {
-//                 taxId: employee.taxInfo?.taxId || '',
-//                 taxRate: employee.taxInfo?.taxRate || 0.15
-//             },
-//             bankDetails: {
-//                 accountNumber: employee.bankDetails?.accountNumber || '',
-//                 bankName: employee.bankDetails?.bankName || '',
-//                 branch: employee.bankDetails?.branch || '',
-//                 accountType: employee.bankDetails?.accountType || ''
-//             },
-//             allowances: employee.allowances || 0,
-//             deductions: employee.deductions || 0,
-//             overtimeRate: employee.overtimeRate || 1.5,
-//             standardHours: employee.standardHours || 160,
-//             address: employee.user?.address || '',
-//             cnic: employee.user?.cnic || '',
-//             dateOfBirth: employee.user?.dateOfBirth?.split('T')[0] || ''
-//         });
-//         setIsModalOpen(true);
-//     };
-
-//     const handleChange = (e) => {
-//         const { name, value } = e.target;
-
-//         if (name.includes('.')) {
-//             const [parent, child] = name.split('.');
-//             setFormData(prev => ({
-//                 ...prev,
-//                 [parent]: {
-//                     ...prev[parent],
-//                     [child]: value
-//                 }
-//             }));
-//         } else {
-//             setFormData(prev => ({
-//                 ...prev,
-//                 [name]: value
-//             }));
-//         }
-//     };
-
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-//         try {
-//             setSaving(true);
-//             await ApiClient.put(`/employees/${selectedEmployee.user._id}`, formData, {
-//                 headers: { Authorization: `bearer ${token}` }
-//             });
-
-//             // Update local state
-//             setEmployees(prev => prev.map(emp =>
-//                 emp.user._id === selectedEmployee.user._id
-//                     ? {
-//                         ...emp,
-//                         ...formData,
-//                         profileStatus: 'complete',
-//                         user: {
-//                             ...emp.user,
-//                             address: formData.address,
-//                             cnic: formData.cnic,
-//                             dateOfBirth: formData.dateOfBirth
-//                         }
-//                     }
-//                     : emp
-//             ));
-
-//             toast.success('Employee profile updated successfully');
-//             setIsModalOpen(false);
-//         } catch (error) {
-//             toast.error('Failed to update employee profile');
-//             console.error('Error:', error);
-//         } finally {
-//             setSaving(false);
-//         }
-//     };
-
-//     return (
-//         <div className="container mx-auto px-4 py-8">
-//             {/* Modal */}
-//             {isModalOpen && (
-//                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-//                     <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-//                         <div className="p-6">
-//                             <div className="flex justify-between items-center mb-4">
-//                                 <h2 className="text-xl font-bold text-gray-800">
-//                                     {selectedEmployee?.profileStatus === 'incomplete'
-//                                         ? 'Complete Employee Profile'
-//                                         : 'Edit Employee Profile'}
-//                                 </h2>
-//                                 <button
-//                                     onClick={() => setIsModalOpen(false)}
-//                                     className="text-gray-500 hover:text-gray-700"
-//                                 >
-//                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-//                                     </svg>
-//                                 </button>
-//                             </div>
-
-//                             <form onSubmit={handleSubmit}>
-//                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-//                                     {/* Personal Info */}
-//                                     <div className="space-y-4">
-//                                         <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Personal Information</h3>
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-//                                             <input
-//                                                 type="text"
-//                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-//                                                 value={selectedEmployee?.user.fullName || ''}
-//                                                 readOnly
-//                                             />
-//                                         </div>
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-//                                             <input
-//                                                 type="email"
-//                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-//                                                 value={selectedEmployee?.user.email || ''}
-//                                                 readOnly
-//                                             />
-//                                         </div>
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-//                                             <input
-//                                                 type="date"
-//                                                 name="dateOfBirth"
-//                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-//                                                 value={formData.dateOfBirth || ''}
-//                                                 onChange={handleChange}
-//                                             />
-//                                         </div>
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">CNIC</label>
-//                                             <input
-//                                                 type="text"
-//                                                 name="cnic"
-//                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-//                                                 value={formData.cnic || ''}
-//                                                 onChange={handleChange}
-//                                             />
-//                                         </div>
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-//                                             <textarea
-//                                                 name="address"
-//                                                 rows={3}
-//                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-//                                                 value={formData.address || ''}
-//                                                 onChange={handleChange}
-//                                             />
-//                                         </div>
-//                                     </div>
-
-//                                     {/* Employment Info */}
-//                                     <div className="space-y-4">
-//                                         <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Employment Information</h3>
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-//                                             <input
-//                                                 type="text"
-//                                                 name="department"
-//                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-//                                                 value={formData.department || ''}
-//                                                 onChange={handleChange}
-//                                             />
-//                                         </div>
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
-//                                             <input
-//                                                 type="text"
-//                                                 name="position"
-//                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-//                                                 value={formData.position || ''}
-//                                                 onChange={handleChange}
-//                                             />
-//                                         </div>
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-//                                             <select
-//                                                 name="status"
-//                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-//                                                 value={formData.status || 'active'}
-//                                                 onChange={handleChange}
-//                                             >
-//                                                 <option value="active">Active</option>
-//                                                 <option value="inactive">Inactive</option>
-//                                                 <option value="on leave">On Leave</option>
-//                                             </select>
-//                                         </div>
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">Joining Date</label>
-//                                             <input
-//                                                 type="date"
-//                                                 name="joiningDate"
-//                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-//                                                 value={formData.joiningDate || ''}
-//                                                 onChange={handleChange}
-//                                             />
-//                                         </div>
-//                                         <div>
-//                                             <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate</label>
-//                                             <input
-//                                                 type="number"
-//                                                 name="hourlyRate"
-//                                                 min="0"
-//                                                 step="0.01"
-//                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-//                                                 value={formData.hourlyRate || 0}
-//                                                 onChange={handleChange}
-//                                             />
-//                                         </div>
-//                                     </div>
-//                                 </div>
-
-//                                 <div className="flex justify-end space-x-4 pt-4 border-t">
-//                                     <button
-//                                         type="button"
-//                                         onClick={() => setIsModalOpen(false)}
-//                                         className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-//                                     >
-//                                         Cancel
-//                                     </button>
-//                                     <button
-//                                         type="submit"
-//                                         disabled={saving}
-//                                         className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400"
-//                                     >
-//                                         {saving ? 'Saving...' : 'Save Changes'}
-//                                     </button>
-//                                 </div>
-//                             </form>
-//                         </div>
-//                     </div>
-//                 </div>
-//             )}
-
-//             {/* Main Content */}
-//             <div className="flex justify-between items-center mb-6">
-//                 <h1 className="text-2xl font-bold text-gray-800">Employee Profiles</h1>
-//                 <div className="relative w-64">
-//                     <input
-//                         type="text"
-//                         placeholder="Search employees..."
-//                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                         value={searchTerm}
-//                         onChange={(e) => setSearchTerm(e.target.value)}
-//                     />
-//                     <svg
-//                         className="absolute right-3 top-2.5 h-5 w-5 text-gray-400"
-//                         fill="none"
-//                         stroke="currentColor"
-//                         viewBox="0 0 24 24"
-//                         xmlns="http://www.w3.org/2000/svg"
-//                     >
-//                         <path
-//                             strokeLinecap="round"
-//                             strokeLinejoin="round"
-//                             strokeWidth={2}
-//                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-//                         />
-//                     </svg>
-//                 </div>
-//             </div>
-
-//             {loading ? (
-//                 <div className="flex justify-center items-center h-64">
-//                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-//                 </div>
-//             ) : (
-//                 <div className="bg-white rounded-lg shadow overflow-hidden">
-//                     <table className="min-w-full divide-y divide-gray-200">
-//                         <thead className="bg-gray-50">
-//                             <tr>
-//                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-//                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-//                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-//                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-//                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-//                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profile</th>
-//                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-//                             </tr>
-//                         </thead>
-//                         <tbody className="bg-white divide-y divide-gray-200">
-//                             {filteredEmployees.map((employee) => (
-//                                 <tr
-//                                     key={employee.user._id}
-//                                     className="hover:bg-gray-50"
-//                                 >
-//                                     <td
-//                                         className="px-6 py-4 whitespace-nowrap cursor-pointer"
-//                                         onClick={() => handleEmployeeClick(employee.user._id)}
-//                                     >
-//                                         <div className="flex items-center">
-//                                             <div className='flex-shrink-0 h-10 w-10'>
-//                                                 <img
-//                                                     src={`http://localhost:3000${employee.user.profileImage}` || 'https://via.placeholder.com/150'}
-//                                                     alt="profile pic" className="w-full h-full rounded-full object-cover"
-//                                                 />
-//                                             </div>
-//                                             <div className="ml-4">
-//                                                 <div className="text-sm font-medium text-gray-900">{employee.user.fullName}</div>
-//                                             </div>
-//                                         </div>
-//                                     </td>
-//                                     <td
-//                                         className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 cursor-pointer"
-//                                         onClick={() => handleEmployeeClick(employee.user._id)}
-//                                     >
-//                                         {employee.user.email}
-//                                     </td>
-//                                     <td
-//                                         className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 cursor-pointer"
-//                                         onClick={() => handleEmployeeClick(employee.user._id)}
-//                                     >
-//                                         {employee.department || '-'}
-//                                     </td>
-//                                     <td
-//                                         className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 cursor-pointer"
-//                                         onClick={() => handleEmployeeClick(employee.user._id)}
-//                                     >
-//                                         {employee.position || '-'}
-//                                     </td>
-//                                     <td
-//                                         className="px-6 py-4 whitespace-nowrap cursor-pointer"
-//                                         onClick={() => handleEmployeeClick(employee.user._id)}
-//                                     >
-//                                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${employee.status === 'active' ? 'bg-green-100 text-green-800' :
-//                                             employee.status === 'inactive' ? 'bg-red-100 text-red-800' :
-//                                                 'bg-yellow-100 text-yellow-800'
-//                                             }`}>
-//                                             {employee.status || 'active'}
-//                                         </span>
-//                                     </td>
-//                                     <td
-//                                         className="px-6 py-4 whitespace-nowrap cursor-pointer"
-//                                         onClick={() => handleEmployeeClick(employee.user._id)}
-//                                     >
-//                                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${employee.profileStatus === 'complete' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-//                                             }`}>
-//                                             {employee.profileStatus}
-//                                         </span>
-//                                     </td>
-//                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-//                                         <button
-//                                             onClick={(e) => handleActionButtonClick(employee, e)}
-//                                             className={`px-3 py-1 rounded-md text-sm font-medium ${employee.profileStatus === 'incomplete'
-//                                                 ? 'bg-green-500 text-white hover:bg-green-600'
-//                                                 : 'bg-blue-500 text-white hover:bg-blue-600'}`}
-//                                         >
-//                                             {employee.profileStatus === 'incomplete' ? 'Complete Profile' : 'Edit Profile'}
-//                                         </button>
-//                                     </td>
-//                                 </tr>
-//                             ))}
-//                         </tbody>
-//                     </table>
-//                 </div>
-//             )}
-//         </div>
-//     );
-// };
-
-// export default EmployeeListView;
-
-// components/EmployeeList.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createApiClient } from '../../Utils/Utils';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 
-const EmployeeListView = () => {
+const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
 
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [formData, setFormData] = useState({ ...employees});
+    const [formData, setFormData] = useState({ ...employees });
     const [saving, setSaving] = useState(false);
     const navigate = useNavigate();
     const token = useSelector((state) => state.auth.token);
@@ -447,7 +25,6 @@ const EmployeeListView = () => {
                 headers: { Authorization: `bearer ${token}` }
             });
             setEmployees(response.data.data);
-            console.log("Response.data inside the fetchEmployee EmployeeListView,", response.data.data)
         } catch (error) {
             toast.error('Failed to fetch employees');
             console.error('Error:', error);
@@ -464,10 +41,6 @@ const EmployeeListView = () => {
         employee.user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         employee.user.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-    const handleEmployeeClick = (employeeId) => {
-        navigate(`/admin/employees/${employeeId}`);
-    };
 
     const handleActionButtonClick = (employee, e) => {
         e.stopPropagation();
@@ -548,7 +121,10 @@ const EmployeeListView = () => {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8" onClick={() => {
+            setShowSidebar(false);
+            setNavDropDown(false);
+        }}>
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -811,14 +387,13 @@ const EmployeeListView = () => {
                             >
                                 {/* Employee */}
                                 <div
-                                    className="md:col-span-3 flex items-center gap-3 cursor-pointer"
-                                    onClick={() => handleEmployeeClick(employee.user._id)}
+                                    className="md:col-span-3 flex items-center gap-3"
                                 >
-                                    <img
-                                        src={`http://localhost:3000${employee.user.profileImage}` || 'https://via.placeholder.com/150'}
-                                        alt="profile"
-                                        className="w-10 h-10 rounded-full object-cover"
-                                    />
+
+                                    {employee?.user?.profileImage ? (
+                                        <img src={`http://localhost:3000${employee?.user?.profileImage}`} alt='show pic' className='w-10 h-10 object-cover rounded-full' />
+                                    ) : (<img src={`http://localhost:3000/uploads/noavatar.png`} alt='show pic' className='w-10 h-10 object-cover rounded-full' />)}
+
                                     <div>
                                         <p className="text-sm font-medium text-gray-900">
                                             {employee.user.fullName}
@@ -865,7 +440,7 @@ const EmployeeListView = () => {
                                 {/* Status */}
                                 <div className="md:col-span-1 text-center">
                                     <span
-                                        className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${employee.status === 'active'
+                                        className={`cursor-pointer inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${employee.status === 'active'
                                             ? 'bg-green-100 text-green-700'
                                             : employee.status === 'inactive'
                                                 ? 'bg-red-100 text-red-700'
@@ -879,7 +454,7 @@ const EmployeeListView = () => {
                                 {/* Profile */}
                                 <div className="md:col-span-1 text-center">
                                     <span
-                                        className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${employee.profileStatus === 'complete'
+                                        className={`cursor-pointer inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${employee.profileStatus === 'complete'
                                             ? 'bg-blue-100 text-blue-700'
                                             : 'bg-gray-100 text-gray-700'
                                             }`}
@@ -892,7 +467,7 @@ const EmployeeListView = () => {
                                 <div className="md:col-span-1 text-center">
                                     <button
                                         onClick={(e) => handleActionButtonClick(employee, e)}
-                                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${employee.profileStatus === 'incomplete'
+                                        className={`cursor-pointer px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${employee.profileStatus === 'incomplete'
                                             ? 'bg-green-600 text-white hover:bg-green-700'
                                             : 'bg-blue-600 text-white hover:bg-blue-700'
                                             }`}

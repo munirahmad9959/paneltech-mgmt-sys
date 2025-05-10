@@ -2,14 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createApiClient } from '../../Utils/Utils';
 import { setUser } from '../state';
+import PlayLoading from '../Components/PlayLoading';
 
 
-const AdminProfile = () => {
+const AdminProfile = ({setShowSidebar, setNavDropDown}) => {
   const user = useSelector((state) => state.auth.user);
-  console.log("User is from profile section: ", user)
   const [initialLoad, setInitialLoad] = useState(true);
   const dispatch = useDispatch();
-  console.log("Logging user id:", user.user?._id)
 
   const defaultUser = {
     _id: user.user?._id || '',
@@ -28,7 +27,6 @@ const AdminProfile = () => {
   const fileInputRef = useRef(null);
 
   const ApiClient = createApiClient();
-  console.log("handleSaved clicked", handleSaveClicked)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -44,17 +42,30 @@ const AdminProfile = () => {
     return `${year}-${month}-${day}`;
   };
 
+  const getProfileImageSrc = () => {
+    if (!formData.profileImage) {
+      return 'http://localhost:3000/uploads/noavatar.png';
+    }
+
+    if (typeof formData.profileImage === 'string') {
+      return `http://localhost:3000${formData.profileImage}`;
+    }
+
+    if (formData.profileImage instanceof File) {
+      return URL.createObjectURL(formData.profileImage);
+    }
+
+    return 'http://localhost:3000/uploads/noavatar.png';
+  };
+
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setFormData(prev => ({ ...prev, profileImage: file }));
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
       reader.readAsDataURL(file);
     }
-    setHandleSaveClicked(false)
   };
 
   useEffect(() => {
@@ -62,7 +73,6 @@ const AdminProfile = () => {
       try {
         const response = await ApiClient.get(`/user/${user.user?._id}`);
         const userData = response.data.data;
-        console.log('User Data from the Useeffect profile:', userData);
 
         setFormData({
           _id: userData.user?._id,
@@ -74,9 +84,6 @@ const AdminProfile = () => {
           profileImage: userData.user?.profileImage || './resources/noavatar.png',
         });
 
-        if (userData.profileImage) {
-          setPreviewImage(userData.profileImage);
-        }
         dispatch(setUser({ user: userData, token: user.token }));
 
         setInitialLoad(false);
@@ -103,7 +110,6 @@ const AdminProfile = () => {
         payload.append('profileImage', formData.profileImage);
       }
 
-      console.log('Payload:', payload);
 
       const response = await ApiClient.post('/user/save', payload, {
         headers: {
@@ -112,7 +118,6 @@ const AdminProfile = () => {
       });
 
       const updatedUser = response.data.user;
-      console.log('Updated User:', updatedUser);
       setFormData(prev => ({
         ...prev,
         dateOfBirth: updatedUser?.dateOfBirth || '',
@@ -121,11 +126,6 @@ const AdminProfile = () => {
         profileImage: updatedUser?.profileImage || null,
       }));
 
-      if (updatedUser?.profileImage) {
-        setPreviewImage(updatedUser.profileImage);
-      }
-      setHandleSaveClicked(true)
-      setPreviewImage(null)
       setIsEditing(false);
       alert('Profile updated successfully!');
     } catch (error) {
@@ -141,11 +141,14 @@ const AdminProfile = () => {
   };
 
   if (initialLoad) {
-    return <div>Loading...</div>;
+    return <PlayLoading />;
   }
 
   return (
-    <div className="min-h-screen py-3 px-3 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-3 px-3 sm:px-6 lg:px-8" onClick={() => {
+      setShowSidebar(false);
+      setNavDropDown(false);
+    }}>
       {/* Header with Edit Button*/}
       <div className="p-3 flex justify-between items-center">
         <div className='text-[#2b2a2a]'>
@@ -189,39 +192,31 @@ const AdminProfile = () => {
         <div className="flex flex-col md:flex-row items-start gap-8 mb-10">
           {/* Profile Image */}
           <div className="w-full md:w-auto flex flex-col items-center">
-            <div
-              className={`relative w-40 h-40 rounded-full overflow-hidden border-4 ${isEditing ? 'border-blue-400 cursor-pointer' : 'border-none'} transition-all duration-300 ease-in-out group shadow-lg`}
+            < div className={`relative w-40 h-40 rounded-full overflow-hidden border-4 ${isEditing ? 'border-blue-400 cursor-pointer' : 'border-none'} transition-all duration-300 ease-in-out group shadow-lg`}
               onClick={triggerFileInput}
             >
-              {handleSaveClicked ? (
-                formData.profileImage ? (
-                  <img
-                    src={`http://localhost:3000${formData.profileImage}`}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <img
-                    src={`http://localhost:3000/uploads/noavatar.png`}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
+              <img
+                src={getProfileImageSrc()}
+                alt="Profile"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src = 'http://localhost:3000/uploads/noavatar.png';
+                }}
+              />
+              {
+                isEditing && (
+                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <span className="text-white font-medium flex flex-col items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Change Photo
+                    </span>
+                  </div>
                 )
-              ) : (
-                <img src={previewImage} alt='preview' className="w-full h-full object-cover" />
-              )}
-              {isEditing && (
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span className="text-white font-medium flex flex-col items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    Change Photo
-                  </span>
-                </div>
-              )}
-            </div>
+              }
+            </div >
             <input
               type="file"
               ref={fileInputRef}

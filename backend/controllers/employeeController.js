@@ -1,48 +1,5 @@
-// controllers/employeeController.js
 import Employee from '../models/Employee.js';
 import User from '../models/User.js';
-
-// Get all employees with profile status
-// export const getAllEmployees = async (req, res) => {
-//   try {
-//     const employees = await Employee.aggregate([
-//       {
-//         $lookup: {
-//           from: 'users',
-//           localField: 'userId',
-//           foreignField: '_id',
-//           as: 'user'
-//         }
-//       },
-//       { $unwind: '$user' },
-//       {
-//         $project: {
-//           profileStatus: 1,
-//           department: 1,
-//           position: 1,
-//           status: 1,
-//           'user._id': 1,
-//           'user.fullName': 1,
-//           'user.email': 1,
-//           'user.profileImage': 1
-//         }
-//       },
-//       { $sort: { 'user.fullName': 1 } }
-//     ]);
-//     console.log('Fetched employees inside the getAllEmployees controller:', employees); // Debugging line
-
-//     res.status(200).json({
-//       success: true,
-//       data: employees
-//     });
-//   } catch (error) {
-//     console.error('Error fetching employees:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Failed to fetch employees'
-//     });
-//   }
-// };
 
 export const getAllEmployees = async (req, res) => {
   try {
@@ -125,12 +82,11 @@ export const updateEmployeeProfile = async (req, res) => {
       { userId: id },
       { 
         ...updateData,
-        profileStatus: 'complete' // Automatically set to complete when admin updates
+        profileStatus: 'complete' 
       },
       { new: true, runValidators: true }
     );
 
-    // Update user record if needed (address, cnic, etc.)
     if (updateData.address || updateData.cnic || updateData.dateOfBirth) {
       await User.findByIdAndUpdate(
         id,

@@ -1,117 +1,104 @@
-// import React from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { FiMenu } from 'react-icons/fi';
-
-// const Navbar = () => {
-
-//     const navigate = useNavigate();
-
-//     const handleClick = () => {
-//         navigate('/login');
-//     }
-
-//     return (
-//         <div className='bg-[#E4E8EC] fixed w-screen left-0 top-0 z-[999]'>
-//             <div className='flex justify-between items-center h-[70px] max-w-full mr-2 md:mr-10 md:ml-3'>
-//                 <div className="flex items-center space-x-1 w-1/2 md:relative ml-2">
-//                     <a href="/" className='bg-white rounded-full '>
-//                         <img src="https://www.paneltechllc.com/wp-content/themes/paneltec/images/logo.png" alt="logo" className="w-[170px] md:w-[110px] cursor-pointer mx-3  rounded-full"/>
-//                     </a>
-
-//                     <span className='absolute w-[38px] h-[15px] left-[6.3rem] bg-white border border-white rounded-lg z-[-10]'></span>
-
-//                     <div className='hidden md:block items-center bg-white border border-[#f3f3f3] rounded-full py-2'>
-//                         <a href="#home" className="text-[#00234b] hover:text-[#8854c0] transition duration-300 hover:bg-[#efe5ff] px-3 py-[0.35rem] rounded-full">Platform</a>
-//                         <a href="#about" className="text-[#00234b] hover:text-[#8854c0] transition duration-300 hover:bg-[#efe5ff] px-3 py-[0.35rem] rounded-full">Resources</a>
-//                         <a href="#services" className="text-[#00234b] hover:text-[#8854c0] transition duration-300 hover:bg-[#efe5ff] px-3 py-[0.35rem] rounded-full">Pricing</a>
-//                         <a href="#contact" className="text-[#00234b] hover:text-[#8854c0] transition duration-300 hover:bg-[#efe5ff] px-3 py-[0.35rem] rounded-full">Use Cases</a>
-//                         <a href="#contact" className="text-[#00234b] hover:text-[rgb(136,84,192)] transition duration-300 hover:bg-[#efe5ff] px-3 py-[0.35rem] rounded-full">Why Remote</a>
-//                     </div>
-//                 </div>
-
-//                 <nav className="flex items-center space-x-1 md:relative">
-//                     <div className="flex items-center space-x-2 mr-2">
-//                         <button className='text-[#00234b] border-2 border-[#f3f3f3] px-[0.7rem] py-[0.35rem] rounded-full transition duration-200 hover:bg-[#efe5ff] hidden md:flex items-center cursor-pointer space-x-2'>
-//                             <img src='./resources/lang-icon.png' className='w-[24px] h-[24px]' />
-//                             <span>English</span>
-//                             <img src='./resources/down-arrow.png' />
-//                         </button>
-//                         <button className='text-[#00234b] border-2 border-[#f3f3f3] px-2 py-1 md:px-[0.7rem] md:py-[0.35rem] rounded-full transition duration-200 hover:bg-[#efe5ff] hidden md:flex items-center cursor-pointer space-x-2'>
-//                             <img src='./resources/world-search-jobs.png' className='w-[24px] h-[24px]' />
-//                             <span>Remote Jobs</span>
-//                         </button>
-//                     </div>
-//                     <button className='text-[#00234b] bg-[#fff] px-3 py-1 rounded-full transition duration-200 hover:bg-[#efe5ff] hover:text-[rgb(136,84,192)] cursor-pointer' onClick={handleClick}>Log in</button>
-//                     <button
-//                         className="p-2 md:hidden"
-//                         onClick={() => setShowSidebar((prev) => !prev)} // **Toggle Sidebar on click**
-//                     >
-//                         <FiMenu className="text-2xl text-[#5D2057]" />
-//                     </button>
-//                     <span className='absolute z-[-10] w-[25px] h-[15px] rounded-lg bg-white border-white right-[6.9rem]'></span>
-//                     <button className='text-[#00234b] bg-[#fff] px-4 py-2 rounded-full transition duration-200 hover:bg-[#efe5ff] hover:text-[rgb(136,84,192)] hidden md:flex items-center cursor-pointer'>Book a Demo</button>
-//                 </nav>
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default Navbar;
-
-
-import React from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiMenu } from 'react-icons/fi';
+import { FiMenu, FiX } from 'react-icons/fi';
 
 const Navbar = () => {
     const navigate = useNavigate();
+    const [showSidebar, setShowSidebar] = useState(false);
 
     const handleClick = () => {
         navigate('/login');
     }
 
+    const navLinks = [
+        { name: "INTRODUCTION", url: "https://www.paneltechllc.com/introduction/" },
+        { name: "OUR FACTORY", url: "https://www.paneltechllc.com/about/our-factory/" },
+        { name: "CONSTRUCTION", url: "https://www.paneltechllc.com/construction/" },
+        { name: "QUALITY STANDARDS", url: "https://www.paneltechllc.com/about/quality-standards/" },
+        { name: "PRODUCTS", url: "https://www.paneltechllc.com/products/" }
+    ];
+
     return (
-        // 🟢 Increased `top` from `0` to `48px` (height of HeaderTop) so Navbar appears below HeaderTop
-        <div className='bg-[#E4E8EC] fixed w-screen left-0 top-[48px] z-[999]'>
-            <div className='flex justify-between items-center h-[70px] max-w-full mr-2 md:mr-10 md:ml-3'>
-                <div className="flex items-center space-x-1 w-1/2 md:relative ml-2">
-                    <a href="/" className='bg-white rounded-full '>
-                        <img src="https://www.paneltechllc.com/wp-content/themes/paneltec/images/logo.png" alt="logo" className="w-[170px] md:w-[110px] cursor-pointer mx-3  rounded-full"/>
+        <div className='md:fixed w-screen left-0 top-[50px] md:top-[48px] z-[999] mb-2 md:mb-20 bg-[#fff]'>
+            <div className='flex justify-between items-center h-[70px] max-w-full mx-auto px-9'>
+                <div className="flex items-center space-x-1 w-full md:w-auto">
+                    <a href="/">
+                        <img
+                            src="https://www.paneltechllc.com/wp-content/themes/paneltec/images/logo.png"
+                            alt="logo"
+                            className="w-[170px] md:w-[180px] cursor-pointer"
+                        />
                     </a>
 
-                    <span className='absolute w-[38px] h-[15px] left-[6.3rem] bg-white border border-white rounded-lg z-[-10]'></span>
-
-                    <div className='hidden md:block items-center bg-white border border-[#f3f3f3] rounded-full py-2'>
-                        <a href="#home" className="text-[#00234b] hover:text-[#8854c0] transition duration-300 hover:bg-[#efe5ff] px-3 py-[0.35rem] rounded-full">Platform</a>
-                        <a href="#about" className="text-[#00234b] hover:text-[#8854c0] transition duration-300 hover:bg-[#efe5ff] px-3 py-[0.35rem] rounded-full">Resources</a>
-                        <a href="#services" className="text-[#00234b] hover:text-[#8854c0] transition duration-300 hover:bg-[#efe5ff] px-3 py-[0.35rem] rounded-full">Pricing</a>
-                        <a href="#contact" className="text-[#00234b] hover:text-[#8854c0] transition duration-300 hover:bg-[#efe5ff] px-3 py-[0.35rem] rounded-full">Use Cases</a>
-                        <a href="#contact" className="text-[#00234b] hover:text-[rgb(136,84,192)] transition duration-300 hover:bg-[#efe5ff] px-3 py-[0.35rem] rounded-full">Why Remote</a>
+                    <div className='hidden md:flex items-center bg-white ml-4 space-x-4'>
+                        {navLinks.map((link, index) => (
+                            <a
+                                key={index}
+                                href={link.url}
+                                className="text-[#00234b] hover:text-[#EA1C29] transition duration-300 bg-[#f9f9f9] hover:bg-[#efe5ff] px-4 py-2 rounded-full text-sm font-medium border border-[#e0e0e0] hover:shadow-lg"
+                            >
+                                {link.name}
+                            </a>
+                        ))}
                     </div>
                 </div>
 
-                <nav className="flex items-center space-x-1 md:relative">
-                    <div className="flex items-center space-x-2 mr-2">
-                        <button className='text-[#00234b] border-2 border-[#f3f3f3] px-[0.7rem] py-[0.35rem] rounded-full transition duration-200 hover:bg-[#efe5ff] hidden md:flex items-center cursor-pointer space-x-2'>
-                            <img src='./resources/lang-icon.png' className='w-[24px] h-[24px]' />
-                            <span>English</span>
-                            <img src='./resources/down-arrow.png' />
-                        </button>
-                        <button className='text-[#00234b] border-2 border-[#f3f3f3] px-2 py-1 md:px-[0.7rem] md:py-[0.35rem] rounded-full transition duration-200 hover:bg-[#efe5ff] hidden md:flex items-center cursor-pointer space-x-2'>
-                            <img src='./resources/world-search-jobs.png' className='w-[24px] h-[24px]' />
-                            <span>Remote Jobs</span>
-                        </button>
-                    </div>
-                    <button className='text-[#00234b] bg-[#fff] px-3 py-1 rounded-full transition duration-200 hover:bg-[#efe5ff] hover:text-[rgb(136,84,192)] cursor-pointer' onClick={handleClick}>Log in</button>
+                {/* Mobile Menu Button */}
+                <div className="flex items-center space-x-4">
+                    <button
+                        className='hidden md:block cursor-pointer text-[#00234b] hover:text-[#EA1C29] transition duration-300 bg-[#f9f9f9] hover:bg-[#efe5ff] px-4 py-2 rounded-full text-sm font-medium border border-[#e0e0e0] hover:shadow-lg'
+                        onClick={handleClick}
+                    >
+                        Log in
+                    </button>
                     <button
                         className="p-2 md:hidden"
-                        onClick={() => setShowSidebar((prev) => !prev)} // **Toggle Sidebar on click**
+                        onClick={() => setShowSidebar((prev) => !prev)}
                     >
-                        <FiMenu className="text-2xl text-[#5D2057]" />
+                        {showSidebar ? (
+                            <FiX className="text-2xl text-[#5D2057]" />
+                        ) : (
+                            <FiMenu className="text-2xl text-[#5D2057]" />
+                        )}
                     </button>
-                    <span className='absolute z-[-10] w-[25px] h-[15px] rounded-lg bg-white border-white right-[6.9rem]'></span>
-                    <button className='text-[#00234b] bg-[#fff] px-4 py-2 rounded-full transition duration-200 hover:bg-[#efe5ff] hover:text-[rgb(136,84,192)] hidden md:flex items-center cursor-pointer'>Book a Demo</button>
-                </nav>
+                </div>
+
+                {/* Mobile Sidebar */}
+                {showSidebar && (
+                    <div className="fixed inset-0 transition-all duration-300 backdrop-blur-xl bg-opacity-50 z-[1000] md:hidden" onClick={() => setShowSidebar(false)}>
+                        <div
+                            className={`absolute top-0 right-0 h-full w-3/4 bg-white shadow-lg p-4 overflow-y-auto transform transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${showSidebar ? 'translate-x-0' : 'translate-x-full'
+                                }`}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex justify-end mb-4">
+                                <button onClick={() => setShowSidebar(false)}>
+                                    <FiX className="text-2xl text-[#5D2057]" />
+                                </button>
+                            </div>
+
+                            <div className="flex flex-col space-y-4">
+                                {navLinks.map((link, index) => (
+                                    <a
+                                        key={index}
+                                        href={link.url}
+                                        className="text-[#00234b] hover:text-[#8854c0] transition duration-300 px-4 py-2 rounded-lg hover:bg-[#efe5ff]"
+                                        onClick={() => setShowSidebar(false)}
+                                    >
+                                        {link.name}
+                                    </a>
+                                ))}
+                                <button
+                                    className='text-[#00234b] bg-[#fff] px-4 py-2 rounded-lg transition duration-200 hover:bg-[#efe5ff] hover:text-[rgb(136,84,192)] cursor-pointer text-left border border-[#f3f3f3]'
+                                    onClick={handleClick}
+                                >
+                                    Log in
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
             </div>
         </div>
     );

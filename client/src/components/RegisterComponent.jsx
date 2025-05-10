@@ -56,7 +56,6 @@ const RegisterComponent = () => {
             };
 
             const response = await ApiClient.post('/auth/register', requestData);
-            console.log("Registration successful:", response.data);
             navigate('/login');
         } catch (error) {
             alert(error.response?.data?.message || "Registration failed. Please try again.");
@@ -133,28 +132,6 @@ const RegisterComponent = () => {
                         and
                         <span className="text-[#111] underline cursor-pointer"> Privacy Policy</span>
                     </p>
-                </div>
-
-                {/* CAPTCHA */}
-                <div className="flex items-center justify-between border border-gray-300 rounded-full p-3 w-[15rem] mt-7">
-                    <div className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            name="NotRobot"
-                            id="not-robot"
-                            checked={formData.NotRobot}
-                            onChange={handleChange}
-                            className="mx-3 w-5 h-5 border-gray-400 rounded focus:ring-2 focus:ring-indigo-500"
-                        />
-                        <label htmlFor="not-robot" className="text-sm font-medium text-gray-600">
-                            I'm not a robot
-                        </label>
-                    </div>
-                    <img
-                        src="./resources/google-recaptcha.png"
-                        alt="reCAPTCHA"
-                        className="h-8"
-                    />
                 </div>
 
                 {/* Submit Button */}

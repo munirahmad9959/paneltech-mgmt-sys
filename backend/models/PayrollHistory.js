@@ -26,7 +26,6 @@ const payrollHistorySchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  // Hourly-based fields
   hourlyRate: {
     type: Number,
     required: true
@@ -53,7 +52,6 @@ const payrollHistorySchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  // Other compensation fields
   allowances: {
     type: Number,
     default: 0
@@ -62,7 +60,6 @@ const payrollHistorySchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  // Deduction fields
   deductions: {
     type: Number,
     default: 0
@@ -71,7 +68,6 @@ const payrollHistorySchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  // Summary fields
   grossPay: {
     type: Number,
     required: true
@@ -93,12 +89,10 @@ const payrollHistorySchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  // Reference to the original payroll notes if needed
   notes: {
     type: String,
     default: ''
   },
-  // Cancellation details (if applicable)
   cancelledAt: {
     type: Date
   },
@@ -108,15 +102,13 @@ const payrollHistorySchema = new mongoose.Schema({
   }
 }, {
   timestamps: true,
-  // Optimize for common queries
   indexes: [
-    { employeeId: 1, status: 1 }, // For employee payroll history
-    { month: 1, year: 1, status: 1 }, // For period-based reporting
-    { paymentDate: 1 } // For financial reporting
+    { employeeId: 1, status: 1 }, 
+    { month: 1, year: 1, status: 1 },
+    { paymentDate: 1 } 
   ]
 });
 
-// Middleware to ensure only paid/cancelled payrolls are archived
 payrollHistorySchema.pre('save', function (next) {
   if (!['paid', 'cancelled'].includes(this.status)) {
     throw new Error('PayrollHistory can only be created for paid or cancelled payrolls');

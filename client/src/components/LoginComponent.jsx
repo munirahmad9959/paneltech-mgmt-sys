@@ -22,7 +22,6 @@ const LoginComponent = () => {
                 user: response.data.data,
                 token: response.data.token,
             }));
-            console.log("Login successful:", response.data.data);
             navigate("/dashboard");
         } catch (error) {
             console.error("Login error:", error);

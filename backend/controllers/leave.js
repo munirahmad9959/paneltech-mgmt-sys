@@ -7,7 +7,6 @@ export const applyLeave = async (req, res) => {
     try {
         const { startDate, endDate, leaveType, reason } = req.body;
 
-        // Validate dates using moment.js
         if (!moment(startDate).isValid() || !moment(endDate).isValid()) {
             return res.status(400).json({ error: "Invalid date format" });
         }

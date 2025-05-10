@@ -6,7 +6,8 @@ import {
   approvePayroll,
   rejectPayroll,
   recalculatePayroll,
-  getPayrollHistoryByStatus
+  getPayrollHistoryByStatus,
+  exportPayrollHistory
 } from '../controllers/payrollController.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
 import { authenticateUser } from '../middleware/authMiddleware.js';
@@ -23,4 +24,5 @@ router.put('/:payrollId/approve', authenticateUser, authorizeRoles("admin"), app
 router.put('/:payrollId/reject', authenticateUser, authorizeRoles("admin"), rejectPayroll);
 router.put('/:payrollId/recalculate', authenticateUser, authorizeRoles("admin"), recalculatePayroll);
 router.get('/history-status', authenticateUser, authorizeRoles("admin"), getPayrollHistoryByStatus);
+router.get('/hist-status', authenticateUser, authorizeRoles("admin"), exportPayrollHistory);
 export default router;

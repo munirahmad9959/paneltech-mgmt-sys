@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { createApiClient } from '../../Utils/Utils';
 import { useDispatch, useSelector } from 'react-redux';
 
-const AdminLeave = () => {
+const AdminLeave = ({ setShowSidebar, setNavDropDown }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +43,6 @@ const AdminLeave = () => {
           ...(filters.employeeName && { employeeName: filters.employeeName })
         }
       });
-      console.log(`response for leaves from employee side: ${response.data.leaves}`); 
 
       setLeaves(response.data.leaves || []);
       setPagination(prev => ({
@@ -81,9 +80,9 @@ const AdminLeave = () => {
 
   const handleStatusUpdate = async () => {
     if (!selectedLeave || !statusUpdate) return;
-    
+
     try {
-      await ApiClient.put(`/leaves/${selectedLeave._id}/status`, 
+      await ApiClient.put(`/leaves/${selectedLeave._id}/status`,
         { status: statusUpdate },
         {
           headers: {
@@ -116,7 +115,10 @@ const AdminLeave = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gray-50 min-h-screen" onClick={() => {
+      setShowSidebar(false);
+      setNavDropDown(false);
+    }}>
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Leave Management - Admin</h1>
@@ -266,8 +268,10 @@ const AdminLeave = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                          {/* <FiUser className="text-gray-500" /> */}
-                          <img src={`http://localhost:3000${leave.employeeId?.profileImage}`} alt="show pic" className='w-full h-full object-cover rounded-full'/>
+
+                          {leave.employeeId?.profileImage ? (
+                            <img src={`http://localhost:3000${leave.employeeId?.profileImage}`} alt='show pic' className='w-full h-full object-cover rounded-full' />
+                          ) : (<img src={`http://localhost:3000/uploads/noavatar.png`} alt='show pic' className='w-full h-full object-cover rounded-full' />)}
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">

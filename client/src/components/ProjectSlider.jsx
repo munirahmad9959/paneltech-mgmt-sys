@@ -18,11 +18,11 @@ const ProjectSlider = () => {
     };
 
     return (
-        <div className="mx-16 mt-10">
+        <div className="md:mx-16 mt-10 mx-7">
             <Slider {...settings}>
                 {projectData.map((project, index) => (
                     <div key={index} className="px-2">
-                        <div className="bg-white shadow-md overflow-hidden text-center cursor-pointer">
+                        <div className="bg-white shadow-md overflow-hidden text-center cursor-pointer rounded-lg">
                             <img src={project.image} alt={project.title} className="w-full h-64 object-cover" />
                             <div className="px-4 py-7">
                                 <h2 className="text-lg font-semibold text-gray-800">{project.title}</h2>

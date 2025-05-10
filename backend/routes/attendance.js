@@ -22,7 +22,7 @@ import {
   checkOut, 
   getAllAttendanceRecords, 
   getAttendanceRecords,
-  getEmployeeAttendanceRecords // ✨ NEW: Import the new controller
+  getEmployeeAttendanceRecords 
 } from "../controllers/attendance.js";
 import { authenticateUser } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";

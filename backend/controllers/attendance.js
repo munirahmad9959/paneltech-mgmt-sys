@@ -1,26 +1,22 @@
 import Attendance from "../models/Attendance.js";
 import Employee from "../models/Employee.js";
-import PDFDocument from 'pdfkit'; // ✨ NEW: Add PDF generation library
-import fs from 'fs';
 
 // Mark Check-In
 export const checkIn = async (req, res) => {
   try {
-    const { userId } = req.body; // Assuming userId is sent from frontend
+    const { userId } = req.body; 
     const employee = await Employee.findOne({ userId });
 
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    // Normalize today's date to 00:00:00
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Check if employee has already checked in today
     const existingAttendance = await Attendance.findOne({
       employeeId: employee._id,
-      date: { $gte: today }, // Ensure correct date comparison
+      date: { $gte: today }, 
     });
 
     if (existingAttendance) {
@@ -31,7 +27,7 @@ export const checkIn = async (req, res) => {
     const attendance = new Attendance({
       employeeId: employee._id,
       checkIn: new Date(),
-      date: today, // Store as a proper Date object
+      date: today, 
     });
 
     await attendance.save();
@@ -42,7 +38,7 @@ export const checkIn = async (req, res) => {
   }
 };
 
-// // Mark Check-Out
+// Mark Check-Out
 export const checkOut = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -52,14 +48,12 @@ export const checkOut = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    // Normalize today's date to 00:00:00
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Find today's attendance record
     const attendance = await Attendance.findOne({
       employeeId: employee._id,
-      date: { $gte: today }, // Ensure correct date comparison
+      date: { $gte: today }, 
     });
 
     if (!attendance) {
@@ -135,22 +129,6 @@ export const getAllAttendanceRecords = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// New controller to get all records for a specific employee
-// export const getEmployeeAttendanceRecords = async (req, res) => {
-//   try {
-//     const { employeeId } = req.params;
-
-//     const records = await Attendance.find({ employeeId })
-//       .sort({ date: -1 })
-//       .select('checkIn checkOut date totalHours');
-
-//     res.status(200).json({ attendanceRecords: records });
-//   } catch (error) {
-//     console.error("Fetch employee attendance error:", error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
 
 export const getEmployeeAttendanceRecords = async (req, res) => {
   try {

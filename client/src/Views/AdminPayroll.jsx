@@ -6,8 +6,11 @@ import {
 import { toast } from 'react-toastify';
 import moment from 'moment';
 import { createApiClient } from '../../Utils/Utils';
+import { FiDownload } from 'react-icons/fi';
+import * as ExcelJS from 'exceljs';
 
-const AdminPayroll = () => {
+
+const AdminPayroll = ({ setShowSidebar, setNavDropDown }) => {
   const [activeTab, setActiveTab] = useState('processing');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -28,6 +31,105 @@ const AdminPayroll = () => {
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
+
+  const generateExcelReport = async (data, fileName) => {
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Payroll Report');
+
+      // Add headers
+      worksheet.columns = [
+        { header: 'Employee', key: 'employee', width: 30 },
+        { header: 'Position', key: 'position', width: 20 },
+        { header: 'Month', key: 'month', width: 15 },
+        { header: 'Year', key: 'year', width: 10 },
+        { header: 'Net Pay', key: 'netPay', width: 15 },
+        { header: 'Status', key: 'status', width: 15 },
+        { header: 'Payment Date', key: 'paymentDate', width: 20 }
+      ];
+
+      // Add data rows
+      data.forEach(item => {
+        worksheet.addRow({
+          employee: item.user?.fullName || 'Unknown',
+          position: item.employee?.position || 'N/A',
+          month: months[item.month - 1],
+          year: item.year,
+          netPay: item.netPay,
+          status: item.status.charAt(0).toUpperCase() + item.status.slice(1),
+          paymentDate: item.paymentDate ? moment(item.paymentDate).format('YYYY-MM-DD') : 'N/A'
+        });
+      });
+
+      // Style header row
+      worksheet.getRow(1).eachCell(cell => {
+        cell.font = { bold: true };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFD3D3D3' }
+        };
+      });
+
+      // Generate Excel file
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        link.remove();
+      }, 100);
+
+      toast.success('Report generated successfully');
+    } catch (error) {
+      console.error('Error generating report:', error);
+      toast.error('Failed to generate report');
+    }
+  };
+
+  const handleDownloadReport = async () => {
+    try {
+      setIsHistoryLoading(true);
+      const response = await ApiClient.get('/payroll/hist-status', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const payrollData = response.data.payrolls || [];
+      const fileName = `payroll-history-${moment().format('YYYY-MM-DD')}.xlsx`;
+      await generateExcelReport(payrollData, fileName);
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error(error.response?.data?.message || 'Failed to fetch payroll data');
+    } finally {
+      setIsHistoryLoading(false);
+    }
+  };
+
+  const handleDownloadPeriodReport = async (month, year) => {
+    try {
+      setIsHistoryLoading(true);
+      const response = await ApiClient.get('/payroll/hist-status', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { month, year }
+      });
+
+      const payrollData = response.data.payrolls || [];
+      const fileName = `payroll-${months[month - 1]}-${year}.xlsx`;
+      await generateExcelReport(payrollData, fileName);
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error(error.response?.data?.message || 'Failed to fetch payroll data');
+    } finally {
+      setIsHistoryLoading(false);
+    }
+  };
 
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
@@ -59,51 +161,13 @@ const AdminPayroll = () => {
     }
   }, [activeTab]);
 
-  // const fetchHistoryPayrolls = async () => {
-  //   try {
-  //     setIsHistoryLoading(true);
-  //     const response = await ApiClient.get('/payroll/history-status', {
-  //       headers: { Authorization: `bearer ${token}` },
-  //     });
-  //     console.log("response.data from the fetchHistoryPayroll", response.data.groupedPayrolls)
-  //     setHistoryPayrolls(response.data.groupedPayrolls || []);
-  //   } catch (error) {
-  //     toast.error('Failed to fetch payroll history');
-  //     console.error('Error fetching payroll history:', error);
-  //   } finally {
-  //     setIsHistoryLoading(false);
-  //   }
-  // };
-
-
-  // Filter processing payrolls based on search and month
-
-  // const fetchHistoryPayrolls = async () => {
-  //   try {
-  //     setIsHistoryLoading(true);
-  //     const response = await ApiClient.get('/payroll/history-status', {
-  //       headers: { Authorization: `bearer ${token}` },
-  //     });
-
-  //     // Transform the response data into an array format
-  //     const groupedPayrolls = Object.values(response.data).flat();
-  //     console.log("Grouped payrolls after flatting:", groupedPayrolls)
-  //     setHistoryPayrolls(groupedPayrolls || []);
-  //   } catch (error) {
-  //     toast.error('Failed to fetch payroll history');
-  //     console.error('Error fetching payroll history:', error);
-  //   } finally {
-  //     setIsHistoryLoading(false);
-  //   }
-  // };
-
   const fetchHistoryPayrolls = async () => {
     try {
       setIsHistoryLoading(true);
       const response = await ApiClient.get('/payroll/history-status', {
         headers: { Authorization: `bearer ${token}` },
       });
-  
+
       // The response data is already in the correct format (array of period groups)
       setHistoryPayrolls(response.data.data || []);
     } catch (error) {
@@ -123,26 +187,9 @@ const AdminPayroll = () => {
     return matchesSearch && matchesMonth && payroll.status === 'pending';
   });
 
-  // const filteredHistoryPayrolls = historyPayrolls?.filter(group => {
-  //   if (!group) return false;
-    
-  //   const matchesMonth = group.month === selectedMonth;
-  //   const matchesYear = group.year === selectedYear;
-  
-  //   // Check if any payroll in the group matches the search term
-  //   const matchesSearch = group.payrolls?.some(payroll => {
-  //     const employee = payroll.employeeId?.userId || payroll.user; // Adjust based on actual structure
-  //     return (
-  //       employee?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       payroll.employeeId?.position?.toLowerCase().includes(searchTerm.toLowerCase())
-  //     );
-  //   });
-    
-  //   return matchesMonth && matchesYear && (searchTerm === '' || matchesSearch);
-  // });
-
   // Handle payroll approval
   const handleApprove = async (payrollId) => {
+    setShowDetailsModal(false);
     try {
       await ApiClient.put(
         `/payroll/${payrollId}/approve`,
@@ -165,23 +212,18 @@ const AdminPayroll = () => {
 
   const filteredHistoryPayrolls = historyPayrolls?.filter(group => {
     if (!group) return false;
-    
-    // Extract month and year from the period string (e.g., "October 2023")
+
     const [monthName, yearStr] = group.period.split(' ');
     const groupYear = parseInt(yearStr);
-    const monthNames = ["January", "February", "March", "April", "May", "June", 
-                       "July", "August", "September", "October", "November", "December"];
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"];
     const groupMonth = monthNames.indexOf(monthName) + 1; // Convert to 1-12
-  
-    // Filter by selected month/year
+
     const matchesMonth = selectedMonth === '' || groupMonth === parseInt(selectedMonth);
     const matchesYear = selectedYear === '' || groupYear === parseInt(selectedYear);
-    
-    // Since we don't have individual payrolls in the group anymore,
-    // we can't search by employee name. You might need to modify this
-    // if search functionality is still required.
-    const matchesSearch = searchTerm === ''; 
-    
+
+    const matchesSearch = searchTerm === '';
+
     return matchesMonth && matchesYear && matchesSearch;
   });
 
@@ -205,25 +247,6 @@ const AdminPayroll = () => {
     }
   };
 
-  // Handle payroll recalculation
-  const handleRecalculate = async (payrollId) => {
-    try {
-      const response = await ApiClient.put(
-        `/payroll/${payrollId}/recalculate`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success('Payroll recalculated successfully');
-      setPayrolls(payrolls.map(p =>
-        p._id === payrollId ? response.data.payroll : p
-      ));
-      setShowDetailsModal(false);
-    } catch (error) {
-      toast.error('Failed to recalculate payroll');
-      console.error('Error recalculating payroll:', error);
-    }
-  };
-
   // View payroll details
   const viewPayrollDetails = (payroll) => {
     setSelectedPayroll(payroll);
@@ -232,9 +255,9 @@ const AdminPayroll = () => {
 
   // Format currency
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PK', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'PKR',
+      currency: 'USD',
       minimumFractionDigits: 2
     }).format(amount || 0);
   };
@@ -257,7 +280,10 @@ const AdminPayroll = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen" onClick={() => {
+      setShowSidebar(false);
+      setNavDropDown(false);
+    }}>
       <div className="max-w-7xl mx-auto p-4">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -355,14 +381,12 @@ const AdminPayroll = () => {
                             <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-gray-200">
                               {payroll.employeeId?.userId?.profileImage ? (
                                 <img
-                                  src={`http://localhost:3000${payroll.employeeId.userId.profileImage}`}
+                                  src={`http://localhost:3000${payroll.employeeId?.userId?.profileImage}`}
                                   alt="Profile"
-                                  className="h-full w-full object-cover"
+                                  className="h-full w-full object-cover rounded-full"
                                 />
                               ) : (
-                                <div className="h-full w-full flex items-center justify-center text-gray-600">
-                                  <FiUser className="h-6 w-6" />
-                                </div>
+                                <img src={`http://localhost:3000/uploads/noavatar.png`} alt='show pic' className='w-full h-full object-cover rounded-full' />
                               )}
                             </div>
                             <div className="ml-4">
@@ -427,9 +451,19 @@ const AdminPayroll = () => {
           </div>
         )}
 
-        {/* Payment History Tab */}
+        {/* payment history */}
         {!isHistoryLoading && activeTab === 'history' && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+              <h2 className="text-lg font-medium text-gray-800">Payroll History</h2>
+              <button
+                onClick={handleDownloadReport}
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+              >
+                <FiDownload className="mr-2" />
+                Download Report
+              </button>
+            </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -438,7 +472,7 @@ const AdminPayroll = () => {
                       Payment Period
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Employees
+                      Employees Paid
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Total Amount
@@ -446,7 +480,7 @@ const AdminPayroll = () => {
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Processed On
                     </th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-9 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -456,37 +490,34 @@ const AdminPayroll = () => {
                     filteredHistoryPayrolls.map((group) => (
                       <tr key={`${group.month}-${group.year}`} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {months[group.month - 1]} {group.year}
+                          {group.period}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {group.count} employees
+                          {group.employeesPaid} {group.employeesPaid === 1 ? 'employee' : 'employees'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatCurrency(group.totalAmount)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {moment(group.processedOn).format('YYYY-MM-DD')}
+                          {moment(group.processedOn).format('MMM D, YYYY')}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button
-                            onClick={() => {
-                              setSelectedPayroll(group.payrolls[0]);
-                              setShowDetailsModal(true);
-                            }}
-                            className="text-blue-600 hover:text-blue-900 mr-3"
-                          >
-                            View
-                          </button>
-                          <button className="text-blue-600 hover:text-blue-900">
-                            Download
-                          </button>
+                          <div className="flex justify-end space-x-3">
+                            <button
+                              onClick={() => handleDownloadPeriodReport(group.month, group.year)}
+                              className="text-green-600 hover:text-green-900 flex items-center"
+                              title="Download Report"
+                            >
+                              <FiDownload className="mr-1" /> Download
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
                       <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
-                        No payroll history available for {months[selectedMonth - 1]} {selectedYear}
+                        No payroll history available for {selectedMonth ? months[selectedMonth - 1] : ''} {selectedYear || ''}
                       </td>
                     </tr>
                   )}
@@ -623,12 +654,6 @@ const AdminPayroll = () => {
                         className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md text-sm hover:bg-green-700 flex items-center justify-center"
                       >
                         <FiCheck className="mr-2" /> Approve Payroll
-                      </button>
-                      <button
-                        onClick={() => handleRecalculate(selectedPayroll._id)}
-                        className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md text-sm hover:bg-blue-700 flex items-center justify-center"
-                      >
-                        <FiRefreshCw className="mr-2" /> Recalculate
                       </button>
                     </div>
 

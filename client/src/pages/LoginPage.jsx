@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setLoading } from "../state";
-import PlayLoading from "../components/PlayLoading";
 import LoginComponent from "../components/LoginComponent";
 
 const LoginPage = () => {
@@ -60,20 +59,16 @@ const LoginPage = () => {
               <img
                 src="https://www.paneltechllc.com/wp-content/themes/paneltec/images/logo.png"
                 alt="logo"
-                className="w-[120px] cursor-pointer"
+                className="w-[170px] mx-7 cursor-pointer"
               />
             </a>
           </div>
           <nav className="flex items-center space-x-1 relative">
             <button
-              className="text-[#5a05ff] bg-[#fff] px-3 py-1 rounded-full transition duration-200 hover:bg-[#efe5ff] cursor-pointer"
+              className="cursor-pointer text-[#00234b] hover:text-[#EA1C29] transition duration-300 bg-[#f9f9f9] hover:bg-[#efe5ff] px-4 py-2 rounded-full text-sm font-medium border border-[#e0e0e0] hover:shadow-lg"
               onClick={handleClick}
             >
               Sign up
-            </button>
-            <span className="absolute z-[-10] w-[25px] h-[15px] rounded-lg bg-white border-white right-[6.9rem]"></span>
-            <button className="text-[#5a05ff] bg-[#fff] px-4 py-2 rounded-full transition duration-200 hover:bg-[#efe5ff] hidden md:flex items-center cursor-pointer">
-              Book a Demo
             </button>
           </nav>
         </div>
