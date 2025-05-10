@@ -70,7 +70,7 @@ const DashboardNavbar = ({ setShowSidebar, navDropDown, setNavDropDown }) => {
                                     className="w-[20px] h-[20px] rounded-full"
                                 />
                             ) : (
-                                <img src={`http://localhost:3000/uploads/noavatar.png`} alt="" />
+                                <img src={`http://localhost:3000/uploads/noavatar.png`} alt="" className="w-[20px] h-[20px] rounded-full" />
                             )}
                             <IoIosArrowDown
                                 className={`ml-2 transition-transform duration-300 ${navDropDown ? "rotate-180" : ""}`}
