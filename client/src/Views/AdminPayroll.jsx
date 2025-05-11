@@ -254,13 +254,22 @@ const AdminPayroll = ({ setShowSidebar, setNavDropDown }) => {
   };
 
   // Format currency
+  // const formatCurrency = (amount) => {
+  //   return new Intl.NumberFormat('en-US', {
+  //     style: 'currency',
+  //     currency: 'USD',
+  //     minimumFractionDigits: 2
+  //   }).format(amount || 0);
+  // };
+
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
+    return amount?.toLocaleString('en-OM', {
       style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(amount || 0);
+      currency: 'OMR',
+      maximumFractionDigits: 2
+    }) || 'OMR 0.00';
   };
+
 
   // Get status badge
   const getStatusBadge = (status) => {

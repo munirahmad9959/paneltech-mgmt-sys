@@ -288,7 +288,7 @@ const AdminProfile = ({setShowSidebar, setNavDropDown}) => {
               </div>
 
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">CNIC/SSN Number</label>
+                <label className="block text-sm font-medium text-gray-700">CNIC</label>
                 <div className="relative">
                   <input
                     type="text"

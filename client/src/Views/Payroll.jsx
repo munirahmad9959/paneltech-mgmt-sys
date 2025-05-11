@@ -5,7 +5,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import moment from 'moment';
 
-const Payroll = ({setShowSidebar, setNavDropDown}) => {
+const Payroll = ({ setShowSidebar, setNavDropDown }) => {
   const [activeTab, setActiveTab] = useState('current');
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -37,7 +37,7 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
           emp_id: user.employee?._id
         }
       });
-      
+
       if (data.success) {
         setPayrollData(data.payroll);
       } else {
@@ -56,12 +56,12 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
       setError(null);
       const { data } = await ApiClient.get('/payroll/history', {
         headers: { Authorization: `Bearer ${token}` },
-        params: { 
+        params: {
           emp_id: user.employee?._id,
-          year: selectedYear 
+          year: selectedYear
         }
       });
-      
+
       if (data.success) {
         setHistoryData(data.history);
       } else {
@@ -80,7 +80,7 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
       setError(null);
       const { data } = await ApiClient.get(
         `/payroll/${selectedMonth}/${selectedYear}`,
-        { 
+        {
           headers: { Authorization: `Bearer ${token}` },
           params: {
             emp_id: user.employee?._id
@@ -88,7 +88,7 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
         }
       );
 
-      
+
       if (data.success) {
         setPayrollData(data.payroll);
       } else {
@@ -110,13 +110,13 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
     doc.setFontSize(18);
     doc.text('PAYSLIP', 105, 20, { align: 'center' });
     doc.setFontSize(12);
-    
+
     // Employee and period info
     doc.text(`Employee: ${user.user?.fullName || 'N/A'}`, 14, 30);
     doc.text(`Employee ID: ${user?.employee?._id || 'N/A'}`, 14, 38);
     doc.text(`Period: ${months[payroll.month - 1]} ${payroll.year}`, 14, 46);
     doc.text(`Status: ${payroll.status.toUpperCase()}`, 14, 54);
-    
+
     if (payroll.paymentDate) {
       doc.text(`Payment Date: ${moment(payroll.paymentDate).format('DD MMM YYYY')}`, 14, 62);
     }
@@ -124,9 +124,9 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
     // Hourly Rate Information
     const employee = payroll.employeeId;
     if (employee) {
-      doc.text(`Hourly Rate: Rs. ${formatCurrency(employee.hourlyRate)}`, 14, payroll.paymentDate ? 70 : 62);
+      doc.text(`Hourly Rate: ${formatCurrency(employee.hourlyRate)}`, 14, payroll.paymentDate ? 70 : 62);
       if (employee.overtimeRate) {
-        doc.text(`Overtime Rate: ${employee.overtimeRate}x (Rs. ${formatCurrency(employee.hourlyRate * employee.overtimeRate)}/hr)`, 
+        doc.text(`Overtime Rate: ${employee.overtimeRate}x (${formatCurrency(employee.hourlyRate * employee.overtimeRate)}/hr)`,
           14, payroll.paymentDate ? 78 : 70);
       }
     }
@@ -134,19 +134,19 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
     // Earnings Table
     autoTable(doc, {
       startY: payroll.paymentDate ? 86 : 78,
-      head: [['Earnings', 'Hours', 'Rate', 'Amount (Rs.)']],
+      head: [['Earnings', 'Hours', 'Rate', 'Amount (OMR.)']],
       body: [
         [
-          'Regular Hours', 
-          payroll.regularHours.toFixed(2), 
-          formatCurrency(employee?.hourlyRate || 0), 
+          'Regular Hours',
+          payroll.regularHours.toFixed(2),
+          formatCurrency(employee?.hourlyRate || 0),
           formatCurrency(payroll.regularPay)
         ],
         ...(payroll.overtimeHours > 0 ? [
           [
-            'Overtime Hours', 
-            payroll.overtimeHours.toFixed(2), 
-            formatCurrency((employee?.hourlyRate || 0) * (employee?.overtimeRate || 1.5)), 
+            'Overtime Hours',
+            payroll.overtimeHours.toFixed(2),
+            formatCurrency((employee?.hourlyRate || 0) * (employee?.overtimeRate || 1.5)),
             formatCurrency(payroll.overtimePay)
           ]
         ] : []),
@@ -161,7 +161,7 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
     // Deductions Table
     autoTable(doc, {
       startY: doc.lastAutoTable.finalY + 10,
-      head: [['Deductions', 'Amount (Rs.)']],
+      head: [['Deductions', 'Amount (OMR.)']],
       body: [
         ['Tax', formatCurrency(payroll.tax)],
         ['Other Deductions', formatCurrency(payroll.deductions)],
@@ -173,8 +173,8 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
     // Net Pay
     doc.setFontSize(14);
     doc.text(
-      `Net Pay: Rs. ${formatCurrency(payroll.netPay)}`, 
-      14, 
+      `Net Pay: OMR. ${formatCurrency(payroll.netPay)}`,
+      14,
       doc.lastAutoTable.finalY + 20
     );
 
@@ -182,8 +182,13 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
   };
 
   const formatCurrency = (amount) => {
-    return amount?.toLocaleString('en-PK', { maximumFractionDigits: 2 }) || '0';
+    return amount?.toLocaleString('en-OM', {
+      style: 'currency',
+      currency: 'OMR',
+      maximumFractionDigits: 2
+    }) || 'OMR 0.00';
   };
+
 
   const handleViewPayroll = (payroll) => {
     setSelectedMonth(payroll.month);
@@ -216,9 +221,9 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
 
   return (
     <div className="bg-gray-50 min-h-screen" onClick={() => {
-            setShowSidebar(false);
-            setNavDropDown(false);
-        }}>
+      setShowSidebar(false);
+      setNavDropDown(false);
+    }}>
       <div className="max-w-6xl mx-auto p-4">
         {error && (
           <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
@@ -291,13 +296,12 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
                         </p>
                       )}
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      payrollData.status === 'paid'
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${payrollData.status === 'paid'
                         ? 'bg-green-100 text-green-800'
                         : payrollData.status === 'pending'
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
-                    }`}>
+                      }`}>
                       {payrollData.status.toUpperCase()}
                     </span>
                   </div>
@@ -313,7 +317,7 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
                           <div className="flex justify-between">
                             <span className="text-gray-600">Regular Rate:</span>
                             <span className="font-medium">
-                              Rs. {formatCurrency(payrollData.employeeId.hourlyRate)}/hr
+                              {formatCurrency(payrollData.employeeId.hourlyRate)}/hr
                             </span>
                           </div>
                         </div>
@@ -321,7 +325,7 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
                           <div className="flex justify-between">
                             <span className="text-gray-600">Overtime Rate:</span>
                             <span className="font-medium">
-                              Rs. {formatCurrency(payrollData.employeeId.hourlyRate * (payrollData.employeeId.overtimeRate || 1.5))}/hr
+                              {formatCurrency(payrollData.employeeId.hourlyRate * (payrollData.employeeId.overtimeRate || 1.5))}/hr
                             </span>
                           </div>
                         </div>
@@ -335,25 +339,25 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
                       <div className="space-y-2">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Regular Hours ({payrollData.regularHours.toFixed(2)} hrs)</span>
-                          <span className="font-medium">Rs. {formatCurrency(payrollData.regularPay)}</span>
+                          <span className="font-medium">{formatCurrency(payrollData.regularPay)}</span>
                         </div>
                         {payrollData.overtimeHours > 0 && (
                           <div className="flex justify-between">
                             <span className="text-gray-600">Overtime Hours ({payrollData.overtimeHours.toFixed(2)} hrs)</span>
-                            <span className="font-medium">Rs. {formatCurrency(payrollData.overtimePay)}</span>
+                            <span className="font-medium">{formatCurrency(payrollData.overtimePay)}</span>
                           </div>
                         )}
                         <div className="flex justify-between">
                           <span className="text-gray-600">Allowances</span>
-                          <span className="font-medium">Rs. {formatCurrency(payrollData.allowances)}</span>
+                          <span className="font-medium">{formatCurrency(payrollData.allowances)}</span>
                         </div>
                         <div className="border-t border-gray-200 pt-2 mt-2">
                           <div className="flex justify-between font-medium">
                             <span>Total Earnings</span>
                             <span>
-                              Rs. {formatCurrency(
-                                payrollData.regularPay + 
-                                payrollData.overtimePay + 
+                              {formatCurrency(
+                                payrollData.regularPay +
+                                payrollData.overtimePay +
                                 payrollData.allowances
                               )}
                             </span>
@@ -367,19 +371,19 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
                       <div className="space-y-2">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Tax</span>
-                          <span className="font-medium text-red-600">- Rs. {formatCurrency(payrollData.tax)}</span>
+                          <span className="font-medium text-red-600">- {formatCurrency(payrollData.tax)}</span>
                         </div>
                         {payrollData.deductions > 0 && (
                           <div className="flex justify-between">
                             <span className="text-gray-600">Other Deductions</span>
-                            <span className="font-medium text-red-600">- Rs. {formatCurrency(payrollData.deductions)}</span>
+                            <span className="font-medium text-red-600">- {formatCurrency(payrollData.deductions)}</span>
                           </div>
                         )}
                         <div className="border-t border-gray-200 pt-2 mt-2">
                           <div className="flex justify-between font-medium">
                             <span>Total Deductions</span>
                             <span className="text-red-600">
-                              - Rs. {formatCurrency(payrollData.tax + payrollData.deductions)}
+                              - {formatCurrency(payrollData.tax + payrollData.deductions)}
                             </span>
                           </div>
                         </div>
@@ -391,13 +395,13 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
                     <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
                       <span className="font-medium text-gray-700">Net Pay</span>
                       <span className="text-2xl font-bold text-blue-600">
-                        Rs. {formatCurrency(payrollData.netPay)}
+                        {formatCurrency(payrollData.netPay)}
                       </span>
                     </div>
                   </div>
 
                   <div className="mt-6 flex justify-end space-x-3">
-                    <button 
+                    <button
                       onClick={() => downloadPayslip(payrollData)}
                       className="px-4 py-2 bg-blue-600 rounded-md text-sm font-medium text-white hover:bg-blue-700"
                     >
@@ -469,27 +473,26 @@ const Payroll = ({setShowSidebar, setNavDropDown}) => {
                           <div>Total: {formatCurrency(item.regularPay + item.overtimePay + item.allowances)}</div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                          Rs. {formatCurrency(item.netPay)}
+                          {formatCurrency(item.netPay)}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            item.status === 'paid' 
-                              ? 'bg-green-100 text-green-800' 
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${item.status === 'paid'
+                              ? 'bg-green-100 text-green-800'
                               : item.status === 'pending'
                                 ? 'bg-yellow-100 text-yellow-800'
                                 : 'bg-red-100 text-red-800'
-                          }`}>
+                            }`}>
                             {item.status.toUpperCase()}
                           </span>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                          <button 
+                          <button
                             onClick={() => handleViewPayroll(item)}
                             className="text-blue-600 hover:text-blue-900 mr-3"
                           >
                             View
                           </button>
-                          <button 
+                          <button
                             onClick={() => downloadPayslip(item)}
                             className="text-blue-600 hover:text-blue-900"
                           >

@@ -345,7 +345,7 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
                             </div>
 
                             <div className="space-y-1">
-                                <label className="block text-sm font-medium text-gray-700">CNIC/SSN Number</label>
+                                <label className="block text-sm font-medium text-gray-700">CNIC</label>
                                 <div className="relative">
                                     <input
                                         type="text"
@@ -391,7 +391,7 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
                     <div className="space-y-6">
                         {/* CNIC */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">CNIC/SSN</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-3">Passport</label>
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                 <label className={`flex-1 w-full cursor-pointer ${!isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                     <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200 ${formData.documents.cnicDoc

@@ -97,17 +97,6 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                 headers: { Authorization: `bearer ${token}` }
             });
 
-            // Update local state
-            // setEmployees(prev => prev.map(emp =>
-            //     emp.user._id === selectedEmployee.user._id
-            //         ? {
-            //             ...emp,
-            //             ...formData,
-            //             profileStatus: 'complete'
-            //         }
-            //         : emp
-            // ));
-
             await fetchEmployees();
 
             toast.success('Employee profile updated successfully');
@@ -270,7 +259,7 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                                             <h3 className="text-lg font-semibold text-gray-700 mb-4">Compensation</h3>
                                             <div className="space-y-4">
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate ($)</label>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (OMR)</label>
                                                     <input
                                                         type="number"
                                                         name="hourlyRate"

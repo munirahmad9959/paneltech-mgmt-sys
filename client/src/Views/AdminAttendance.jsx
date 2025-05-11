@@ -186,11 +186,19 @@ const AdminAttendance = ({ setShowSidebar, setNavDropDown }) => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
-                              <img
-                                className="h-10 w-10 rounded-full object-cover"
-                                src={`http://localhost:3000${record.profilePicture}` || 'https://via.placeholder.com/40'}
-                                alt=""
-                              />
+                              {record.profilePicture ? (
+                                <img
+                                  className="h-10 w-10 rounded-full object-cover"
+                                  src={`http://localhost:3000${record.profilePicture}`}
+                                  alt=""
+                                />
+                              ) : (
+                                <img
+                                  className="h-10 w-10 rounded-full object-cover"
+                                  src={`http://localhost:3000/uploads/noavatar.png`}
+                                  alt=""
+                                />
+                              )}
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-gray-900">{record.fullName}</div>

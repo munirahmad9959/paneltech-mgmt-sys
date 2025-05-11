@@ -30,7 +30,7 @@ const EmployeeSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['active', 'inactive', 'on leave'],
-    default: 'active'
+    default: 'inactive'
   },
   // Payroll specific fields
   taxInfo: {
