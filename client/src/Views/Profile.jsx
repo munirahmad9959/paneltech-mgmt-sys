@@ -5,10 +5,12 @@ import { setUser } from '../state';
 import PlayLoading from '../Components/PlayLoading';
 
 
-const Profile = ({setShowSidebar, setNavDropDown}) => {
+
+const Profile = ({ setShowSidebar, setNavDropDown }) => {
     const user = useSelector((state) => state.auth.user);
     const [initialLoad, setInitialLoad] = useState(true);
     const dispatch = useDispatch();
+    const [expiryAlerts, setExpiryAlerts] = useState([]);
 
     const defaultUser = {
         _id: user.user?._id || '',
@@ -19,8 +21,8 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
         cnic: user.user?.cnic || '',
         profileImage: user.user?.profileImage || './resources/noavatar.png',
         documents: {
-            cnicDoc: user.employee?.cnicDoc || null,
-            cvDoc: user.employee?.cvDoc || null
+            cnicDoc: user.employee?.cnicDoc || { path: "", uploadDate: null, expiryDate: null },
+            cvDoc: user.employee?.cvDoc || { path: "", uploadDate: null, expiryDate: null }
         }
     };
 
@@ -41,7 +43,7 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
                 ...prev,
                 documents: {
                     ...prev.documents,
-                    [docType]: file
+                    [docType]: file // This will be a File object until saved
                 }
             }));
         }
@@ -70,6 +72,7 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
             try {
                 const response = await ApiClient.get(`/user/${user.user?._id}`);
                 const userData = response.data.data;
+                console.log('Fetched user data:', userData);
 
                 setFormData({
                     _id: userData.user?._id,
@@ -87,6 +90,9 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
 
                 dispatch(setUser({ user: userData, token: user.token }));
 
+                // Check document expiry after setting the data
+                checkDocumentExpiry(userData.employee);
+
                 setInitialLoad(false);
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -94,6 +100,54 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
             }
         };
 
+        const checkDocumentExpiry = (employeeData) => {
+            if (!employeeData) return;
+
+            const now = new Date();
+            const alerts = [];
+
+            // Check CNIC Doc expiry
+            if (employeeData.cnicDoc?.expiryDate) {
+                const expiryDate = new Date(employeeData.cnicDoc.expiryDate);
+                const daysLeft = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+
+                if (now > expiryDate) {
+                    alerts.push({
+                        type: 'error',
+                        message: 'Your CNIC document has expired. Please upload a new one.',
+                        docType: 'cnicDoc'
+                    });
+                } else if (daysLeft <= 30) {
+                    alerts.push({
+                        type: 'warning',
+                        message: `Your CNIC document will expire in ${daysLeft} day(s). Please renew it soon.`,
+                        docType: 'cnicDoc'
+                    });
+                }
+            }
+
+            // Check CV Doc expiry
+            if (employeeData.cvDoc?.expiryDate) {
+                const expiryDate = new Date(employeeData.cvDoc.expiryDate);
+                const daysLeft = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+
+                if (now > expiryDate) {
+                    alerts.push({
+                        type: 'error',
+                        message: 'Your CV document has expired. Please upload a new one.',
+                        docType: 'cvDoc'
+                    });
+                } else if (daysLeft <= 30) {
+                    alerts.push({
+                        type: 'warning',
+                        message: `Your CV document will expire in ${daysLeft} day(s). Please renew it soon.`,
+                        docType: 'cvDoc'
+                    });
+                }
+            }
+
+            setExpiryAlerts(alerts);
+        };
         fetchUserData();
     }, [user.user?._id]);
 
@@ -118,13 +172,21 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
             if (formData.profileImage && typeof formData.profileImage !== 'string') {
                 payload.append('profileImage', formData.profileImage);
             }
-            if (formData.documents.cnicDoc && typeof formData.documents.cnicDoc !== 'string') {
+
+            // Handle document uploads - backend will handle the structure
+            if (formData.documents.cnicDoc instanceof File) {
                 payload.append('cnicDoc', formData.documents.cnicDoc);
-            }
-            if (formData.documents.cvDoc && typeof formData.documents.cvDoc !== 'string') {
-                payload.append('cvDoc', formData.documents.cvDoc);
+            } else if (typeof formData.documents.cnicDoc === 'object' && formData.documents.cnicDoc.path === "") {
+                // Handle case where document was removed
+                payload.append('cnicDoc', '');
             }
 
+            if (formData.documents.cvDoc instanceof File) {
+                payload.append('cvDoc', formData.documents.cvDoc);
+            } else if (typeof formData.documents.cvDoc === 'object' && formData.documents.cvDoc.path === "") {
+                // Handle case where document was removed
+                payload.append('cvDoc', '');
+            }
 
             const response = await ApiClient.post('/user/save', payload, {
                 headers: {
@@ -140,11 +202,11 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
                 cnic: updatedUser?.cnic || '',
                 profileImage: updatedUser?.profileImage || null,
                 documents: {
-                    cnicDoc: updatedUser?.cnicDoc || null,
-                    cvDoc: updatedUser?.cvDoc || null
+                    cnicDoc: updatedUser?.cnicDoc || { path: "", uploadDate: null, expiryDate: null },
+                    cvDoc: updatedUser?.cvDoc || { path: "", uploadDate: null, expiryDate: null }
                 }
             }));
-            // dispatch 
+
             setIsEditing(false);
             alert('Profile updated successfully!');
         } catch (error) {
@@ -152,6 +214,7 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
             alert('Error updating profile. Please try again.');
         }
     };
+
 
     const triggerFileInput = () => {
         if (isEditing) {
@@ -178,16 +241,20 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
     const handleViewDocument = (doc) => {
         if (!doc) return;
 
-        if (typeof doc === 'string') {
-            // Check if it's already a full URL
-            if (doc.startsWith('http') || doc.startsWith('blob')) {
-                window.open(doc, '_blank');
-            } else {
-                // Add the base URL for relative paths
-                window.open(`http://localhost:3000${doc}`, '_blank');
-            }
-        } else if (doc instanceof File) {
+        // If it's a File object (new upload)
+        if (doc instanceof File) {
             window.open(URL.createObjectURL(doc), '_blank');
+            return;
+        }
+
+        // If it's the document object from backend
+        if (doc.path) {
+            if (doc.path.startsWith('http') || doc.path.startsWith('blob')) {
+                window.open(doc.path, '_blank');
+            } else {
+                window.open(`http://localhost:3000${doc.path}`, '_blank');
+            }
+            return;
         }
     };
 
@@ -201,6 +268,44 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
             setNavDropDown(false);
         }}
         >
+            {expiryAlerts.length > 0 && (
+                <div className="px-6 md:px-8 space-y-3">
+                    {expiryAlerts.map((alert, index) => (
+                        <div
+                            key={index}
+                            className={`${alert.type === 'error'
+                                ? 'bg-red-100 border border-red-400 text-red-700'
+                                : 'bg-amber-100 border border-amber-400 text-amber-700'} 
+          px-4 py-3 rounded relative`}
+                            role="alert"
+                        >
+                            <button
+                                onClick={() => {
+                                    setExpiryAlerts(prev => prev.filter((_, i) => i !== index));
+                                }}
+                                className="absolute top-1 right-1 px-2 py-1 text-lg font-medium hover:opacity-70"
+                            >
+                                &times;
+                            </button>
+                            <strong className="font-bold pr-6 block">
+                                {alert.type === 'error' ? 'Expired Document! ' : 'Document Expiry Notice! '}
+                            </strong>
+                            <span className="block sm:inline pr-6">{alert.message}</span>
+                            {isEditing && (
+                                <button
+                                    onClick={() => {
+                                        document.getElementById(alert.docType)?.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    className="mt-2 text-sm font-medium underline"
+                                >
+                                    Update now →
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+
             {/* Header with Edit Button*/}
             < div className="p-3 flex justify-between items-center" >
                 <div className='text-[#2b2a2a]'>
@@ -390,29 +495,38 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
 
                     <div className="space-y-6">
                         {/* CNIC */}
-                        <div>
+                        <div id='cnicDoc'>
                             <label className="block text-sm font-medium text-gray-700 mb-3">Passport</label>
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                 <label className={`flex-1 w-full cursor-pointer ${!isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                    <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200 ${formData.documents.cnicDoc
+                                    <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200 ${(formData.documents.cnicDoc?.path && formData.documents.cnicDoc.path !== "") ||
+                                        formData.documents.cnicDoc instanceof File
                                         ? 'border-green-300 bg-green-50 hover:border-green-400'
                                         : 'border-gray-400 hover:border-blue-400 bg-gray-50'
                                         }`}>
-                                        {formData.documents.cnicDoc ? (
+                                        {formData.documents.cnicDoc instanceof File ? (
                                             <div className="flex flex-col items-center justify-center space-y-2">
                                                 <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
                                                 <span className="text-sm font-medium text-gray-700">
-                                                    {typeof formData.documents.cnicDoc === 'string'
-                                                        ? 'Document uploaded'
-                                                        : formData.documents.cnicDoc.name}
+                                                    {formData.documents.cnicDoc.name}
                                                 </span>
-                                                {typeof formData.documents.cnicDoc !== 'string' && (
-                                                    <span className="text-xs text-gray-500">
-                                                        {Math.round(formData.documents.cnicDoc.size / 1024)} KB
-                                                    </span>
-                                                )}
+                                                <span className="text-xs text-gray-500">
+                                                    {Math.round(formData.documents.cnicDoc.size / 1024)} KB
+                                                </span>
+                                            </div>
+                                        ) : formData.documents.cnicDoc?.path && formData.documents.cnicDoc.path !== "" ? (
+                                            <div className="flex flex-col items-center justify-center space-y-2">
+                                                <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span className="text-sm font-medium text-gray-700">
+                                                    Document uploaded
+                                                </span>
+                                                <span className="text-xs text-gray-500">
+                                                    Uploaded on: {new Date(formData.documents.cnicDoc.uploadDate).toLocaleDateString()}
+                                                </span>
                                             </div>
                                         ) : (
                                             <div className="space-y-2">
@@ -432,7 +546,7 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
                                         accept=".png,.jpg,.jpeg,.pdf"
                                     />
                                 </label>
-                                {formData.documents.cnicDoc && (
+                                {(formData.documents.cnicDoc?.path || formData.documents.cnicDoc instanceof File) && (
                                     <button
                                         type="button"
                                         onClick={() => handleViewDocument(formData.documents.cnicDoc)}
@@ -441,33 +555,41 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
                                         View Document
                                     </button>
                                 )}
-                            </div>
-                        </div>
+                            </div>                        </div>
 
                         {/* CV */}
-                        <div>
+                        <div id='cvDoc'>
                             <label className="block text-sm font-medium text-gray-700 mb-3">Curriculum Vitae (CV)</label>
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                 <label className={`flex-1 w-full cursor-pointer ${!isEditing ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                    <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200 ${formData.documents.cvDoc
+                                    <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200 ${(formData.documents.cvDoc?.path && formData.documents.cvDoc.path !== "") ||
+                                        formData.documents.cvDoc instanceof File
                                         ? 'border-green-300 bg-green-50 hover:border-green-400'
                                         : 'border-gray-400 hover:border-blue-400 bg-gray-50'
                                         }`}>
-                                        {formData.documents.cvDoc ? (
+                                        {formData.documents.cvDoc instanceof File ? (
                                             <div className="flex flex-col items-center justify-center space-y-2">
                                                 <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
                                                 <span className="text-sm font-medium text-gray-700">
-                                                    {typeof formData.documents.cvDoc === 'string'
-                                                        ? 'Document uploaded'
-                                                        : formData.documents.cvDoc.name}
+                                                    {formData.documents.cvDoc.name}
                                                 </span>
-                                                {typeof formData.documents.cvDoc !== 'string' && (
-                                                    <span className="text-xs text-gray-500">
-                                                        {Math.round(formData.documents.cvDoc.size / 1024)} KB
-                                                    </span>
-                                                )}
+                                                <span className="text-xs text-gray-500">
+                                                    {Math.round(formData.documents.cvDoc.size / 1024)} KB
+                                                </span>
+                                            </div>
+                                        ) : formData.documents.cvDoc?.path && formData.documents.cvDoc.path !== "" ? (
+                                            <div className="flex flex-col items-center justify-center space-y-2">
+                                                <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span className="text-sm font-medium text-gray-700">
+                                                    Document uploaded
+                                                </span>
+                                                <span className="text-xs text-gray-500">
+                                                    Uploaded on: {new Date(formData.documents.cvDoc.uploadDate).toLocaleDateString()}
+                                                </span>
                                             </div>
                                         ) : (
                                             <div className="space-y-2">
@@ -487,7 +609,7 @@ const Profile = ({setShowSidebar, setNavDropDown}) => {
                                         accept=".pdf,.doc,.docx"
                                     />
                                 </label>
-                                {formData.documents.cvDoc && (
+                                {(formData.documents.cvDoc?.path || formData.documents.cvDoc instanceof File) && (
                                     <button
                                         type="button"
                                         onClick={() => handleViewDocument(formData.documents.cvDoc)}

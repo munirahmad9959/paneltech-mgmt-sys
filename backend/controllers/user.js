@@ -61,22 +61,46 @@ export const saveUserData = async (req, res) => {
             const employeeUpdateData = {};
 
             if (files?.cnicDoc) {
-                employeeUpdateData.cnicDoc = `/uploads/${files.cnicDoc[0].filename}`;
+                const filename = files.cnicDoc[0].filename;
+                const uploadPath = `/uploads/${filename}`;
+                const uploadDate = new Date();
+                const expiryDate = new Date(uploadDate);
+                expiryDate.setMonth(expiryDate.getMonth() + 3);
+
+                employeeUpdateData.cnicDoc = {
+                    path: uploadPath,
+                    uploadDate,
+                    expiryDate
+                };
+
                 const existingEmployee = await Employee.findOne({ userId: savedUser._id });
-                if (existingEmployee?.cnicDoc) {
-                    const oldPath = path.join(process.cwd(), 'public', existingEmployee.cnicDoc);
+                if (existingEmployee?.cnicDoc?.path) {
+                    const oldPath = path.join(process.cwd(), 'public', existingEmployee.cnicDoc.path);
                     if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
                 }
             }
 
+
             if (files?.cvDoc) {
-                employeeUpdateData.cvDoc = `/uploads/${files.cvDoc[0].filename}`;
+                const filename = files.cvDoc[0].filename;
+                const uploadPath = `/uploads/${filename}`;
+                const uploadDate = new Date();
+                const expiryDate = new Date(uploadDate);
+                expiryDate.setMonth(expiryDate.getMonth() + 3);
+
+                employeeUpdateData.cvDoc = {
+                    path: uploadPath,
+                    uploadDate,
+                    expiryDate
+                };
+
                 const existingEmployee = await Employee.findOne({ userId: savedUser._id });
-                if (existingEmployee?.cvDoc) {
-                    const oldPath = path.join(process.cwd(), 'public', existingEmployee.cvDoc);
+                if (existingEmployee?.cvDoc?.path) {
+                    const oldPath = path.join(process.cwd(), 'public', existingEmployee.cvDoc.path);
                     if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
                 }
             }
+
 
             await Employee.findOneAndUpdate(
                 { userId: savedUser._id },
@@ -88,7 +112,7 @@ export const saveUserData = async (req, res) => {
 
         const fullUserData = {
             ...savedUser.toObject(),
-            ...employeeData 
+            ...employeeData
         };
 
         console.log('User data saved successfully:', fullUserData);
@@ -116,8 +140,8 @@ export const getUserData = async (req, res) => {
         }
 
         const fullUserData = {
-            user,       
-            employee   
+            user,
+            employee
         };
 
         res.status(200).json({ message: 'User data fetched successfully', data: fullUserData });

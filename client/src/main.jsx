@@ -35,6 +35,7 @@ const store = configureStore({
 
 
 const persistor = persistStore(store);
+window.persistor = persistor;
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>

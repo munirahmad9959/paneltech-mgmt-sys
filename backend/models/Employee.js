@@ -56,21 +56,40 @@ const EmployeeSchema = new mongoose.Schema({
   },
   overtimeRate: {
     type: Number,
-    default: 1.5 
+    default: 1.5
   },
   standardHours: {
     type: Number,
-    default: 160 
+    default: 160
   },
   // Documents
   cnicDoc: {
-    type: String,
-    default: "",
+    path: {
+      type: String,
+      default: ""
+    },
+    uploadDate: {
+      type: Date,
+      default: Date.now
+    },
+    expiryDate: {
+      type: Date
+    }
   },
   cvDoc: {
-    type: String,
-    default: "",
+    path: {
+      type: String,
+      default: ""
+    },
+    uploadDate: {
+      type: Date,
+      default: Date.now
+    },
+    expiryDate: {
+      type: Date
+    }
   },
+
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
