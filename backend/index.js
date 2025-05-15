@@ -15,6 +15,7 @@ import leaveRoutes from './routes/leave.js';
 import userRoutes from './routes/user.js';
 import payrollRoutes from './routes/payroll.js'; 
 import employeeRoutes from './routes/employee.js'; 
+import emailRoutes from './routes/email.js';
 
 // Upload Middleware
 import { upload } from './middleware/upload.js';
@@ -53,6 +54,10 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leaves', leaveRoutes);
 app.use('/api/payroll', payrollRoutes); 
 app.use('/api/employees', employeeRoutes);
+
+// ========== EMAIL ROUTE ==========
+app.use("/api/email", emailRoutes)
+
 
 // Optional standalone upload route (for testing or general use)
 app.post('/api/upload', upload.single('file'), (req, res) => {

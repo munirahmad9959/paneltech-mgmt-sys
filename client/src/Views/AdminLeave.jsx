@@ -121,7 +121,7 @@ const AdminLeave = ({ setShowSidebar, setNavDropDown }) => {
     }}>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Leave Management - Admin</h1>
+        <h1 className="text-2xl font-bold text-gray-800">Leave Management</h1>
         <p className="text-gray-600">Review and manage employee leave requests</p>
       </div>
 
