@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createApiClient } from '../../Utils/Utils';
 import { setUser } from '../state';
-import PlayLoading from '../Components/PlayLoading';
+import PlayLoading from '../components/PlayLoading';
 
 
 const AdminProfile = ({setShowSidebar, setNavDropDown}) => {

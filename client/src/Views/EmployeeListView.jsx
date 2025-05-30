@@ -1,54 +1,53 @@
-import React, { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { createApiClient } from "../../Utils/Utils"
-import { toast } from "react-toastify"
-import { useDispatch, useSelector } from "react-redux"
-import EmailPanel from "../components/EmailPanel"
-
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { createApiClient } from "../../Utils/Utils";
+import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import EmailPanel from "../components/EmailPanel";
 
 const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
-  const [employees, setEmployees] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedEmployee, setSelectedEmployee] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [formData, setFormData] = useState({ ...employees })
-  const [saving, setSaving] = useState(false)
-  const [isEmailPanelOpen, setIsEmailPanelOpen] = useState(false)
-  const [emailRecipient, setEmailRecipient] = useState(null)
-  const navigate = useNavigate()
-  const token = useSelector((state) => state.auth.token)
-  const dispatch = useDispatch()
-  const ApiClient = React.useMemo(() => createApiClient(dispatch), [dispatch])
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({ ...employees });
+  const [saving, setSaving] = useState(false);
+  const [isEmailPanelOpen, setIsEmailPanelOpen] = useState(false);
+  const [emailRecipient, setEmailRecipient] = useState(null);
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth.token);
+  const dispatch = useDispatch();
+  const ApiClient = React.useMemo(() => createApiClient(dispatch), [dispatch]);
 
   const fetchEmployees = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await ApiClient.get("/employees", {
         headers: { Authorization: `bearer ${token}` },
-      })
-      setEmployees(response.data.data)
+      });
+      setEmployees(response.data.data);
     } catch (error) {
-      toast.error("Failed to fetch employees")
-      console.error("Error:", error)
+      toast.error("Failed to fetch employees");
+      console.error("Error:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchEmployees()
-  }, [token, ApiClient])
+    fetchEmployees();
+  }, [token, ApiClient]);
 
   const filteredEmployees = employees.filter(
     (employee) =>
       employee.user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.user.email.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      employee.user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleActionButtonClick = (employee, e) => {
-    e.stopPropagation()
-    setSelectedEmployee(employee)
+    e.stopPropagation();
+    setSelectedEmployee(employee);
     setFormData({
       department: employee.department || "",
       position: employee.position || "",
@@ -69,68 +68,68 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
       deductions: employee.deductions || 0,
       overtimeRate: employee.overtimeRate || 1.5,
       standardHours: employee.standardHours || 160,
-    })
-    setIsModalOpen(true)
-  }
+    });
+    setIsModalOpen(true);
+  };
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
 
     if (name.includes(".")) {
-      const [parent, child] = name.split(".")
+      const [parent, child] = name.split(".");
       setFormData((prev) => ({
         ...prev,
         [parent]: {
           ...prev[parent],
           [child]: value,
         },
-      }))
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-      }))
+      }));
     }
-  }
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      setSaving(true)
+      setSaving(true);
       await ApiClient.put(`/employees/${selectedEmployee.user._id}`, formData, {
         headers: { Authorization: `bearer ${token}` },
-      })
+      });
 
-      await fetchEmployees()
+      await fetchEmployees();
 
-      toast.success("Employee profile updated successfully")
-      setIsModalOpen(false)
+      toast.success("Employee profile updated successfully");
+      setIsModalOpen(false);
     } catch (error) {
-      toast.error("Failed to update employee profile")
-      console.error("Error:", error)
+      toast.error("Failed to update employee profile");
+      console.error("Error:", error);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleSendEmail = (employee, e) => {
-    e.stopPropagation()
-    setEmailRecipient(employee)
-    setIsEmailPanelOpen(true)
-  }
+    e.stopPropagation();
+    setEmailRecipient(employee);
+    setIsEmailPanelOpen(true);
+  };
 
   return (
     <div
       className="container mx-auto px-4 py-8"
       onClick={() => {
-        setShowSidebar(false)
-        setNavDropDown(false)
+        setShowSidebar(false);
+        setNavDropDown(false);
       }}
     >
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-200 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="p-8">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">
@@ -142,8 +141,18 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                   onClick={() => setIsModalOpen(false)}
                   className="text-gray-500 hover:text-gray-700 transition-colors"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -152,11 +161,15 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Personal Info */}
                   <div className="space-y-4">
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold text-gray-700 mb-4">Basic Information</h3>
+                    <div className="bg-gray-200 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                        Basic Information
+                      </h3>
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Full Name
+                          </label>
                           <input
                             type="text"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -165,7 +178,9 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Email
+                          </label>
                           <input
                             type="email"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -177,11 +192,15 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                     </div>
 
                     {/* Bank Details */}
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold text-gray-700 mb-4">Bank Details</h3>
+                    <div className="bg-gray-200 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                        Bank Details
+                      </h3>
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Bank Name
+                          </label>
                           <input
                             type="text"
                             name="bankDetails.bankName"
@@ -191,7 +210,9 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Account Number
+                          </label>
                           <input
                             type="text"
                             name="bankDetails.accountNumber"
@@ -201,7 +222,9 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Account Type
+                          </label>
                           <input
                             type="text"
                             name="bankDetails.accountType"
@@ -216,11 +239,15 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
 
                   {/* Employment Info */}
                   <div className="space-y-4">
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold text-gray-700 mb-4">Employment Details</h3>
+                    <div className="bg-gray-200 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                        Employment Details
+                      </h3>
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Department
+                          </label>
                           <input
                             type="text"
                             name="department"
@@ -231,7 +258,9 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Position
+                          </label>
                           <input
                             type="text"
                             name="position"
@@ -242,7 +271,9 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Status
+                          </label>
                           <select
                             name="status"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -255,7 +286,9 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Joining Date</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Joining Date
+                          </label>
                           <input
                             type="date"
                             name="joiningDate"
@@ -268,11 +301,15 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                     </div>
 
                     {/* Compensation */}
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold text-gray-700 mb-4">Compensation</h3>
+                    <div className="bg-gray-200 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                        Compensation
+                      </h3>
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (OMR)</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Hourly Rate (OMR)
+                          </label>
                           <input
                             type="number"
                             name="hourlyRate"
@@ -284,7 +321,9 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Overtime Rate (x)</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Overtime Rate (x)
+                          </label>
                           <input
                             type="number"
                             name="overtimeRate"
@@ -296,7 +335,9 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Standard Hours</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Standard Hours
+                          </label>
                           <input
                             type="number"
                             name="standardHours"
@@ -360,17 +401,30 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
       )}
 
       {/* Email Panel */}
-      <EmailPanel isOpen={isEmailPanelOpen} onClose={() => setIsEmailPanelOpen(false)} recipient={emailRecipient} />
+      <EmailPanel
+        isOpen={isEmailPanelOpen}
+        onClose={() => setIsEmailPanelOpen(false)}
+        recipient={emailRecipient}
+      />
 
       {/* Main Content */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Employee Management</h1>
-          <p className="text-gray-600 mt-1">View and manage all employee profiles</p>
+          <h1 className="text-3xl font-bold text-gray-800">
+            Employee Management
+          </h1>
+          <p className="text-gray-600 mt-1">
+            View and manage all employee profiles
+          </p>
         </div>
         <div className="relative w-full md:w-80">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="h-5 w-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -403,7 +457,6 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
             <div className="col-span-2">Position</div>
             <div className="col-span-1 text-center">Status</div>
             <div className="col-span-1 text-center">Profile</div>
-            <div className="col-span-1 text-center">Actions</div>
           </div>
 
           {/* Grid Rows */}
@@ -411,17 +464,42 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
             {filteredEmployees.map((employee) => (
               <div
                 key={employee.user._id}
-                className="group relative grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-4 py-4 md:px-6 hover:bg-gray-50 transition duration-150"
+                className="group relative grid grid-cols-1 md:grid-cols-11 gap-4 items-center px-4 py-4 md:px-6 hover:bg-gray-50 transition duration-150"
               >
                 {/* Send Mail Button (appears on hover) */}
-                <div className="absolute inset-0 flex items-center justify-center z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gray-50/80 backdrop-blur-[2px]">
+                <div className="absolute inset-0 flex items-center justify-center z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gray-50/80 backdrop-blur-[2px] gap-3">
                   <button
-                    onClick={(e) => handleSendEmail(employee, e)}
-                    className="transform transition-all duration-300 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-blue-500/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center gap-2 cursor-pointer"
+                    onClick={(e) => handleActionButtonClick(employee, e)}
+                    className="transform transition-all duration-300 px-4 py-1.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-blue-500/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center gap-1.5 cursor-pointer text-sm"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    <span>
+                      {employee.profileStatus === "incomplete"
+                        ? "Complete"
+                        : "Edit"}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={(e) => handleSendEmail(employee, e)}
+                    className="transform transition-all duration-300 px-4 py-1.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-blue-500/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center gap-1.5 cursor-pointer text-sm"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -433,7 +511,7 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                       />
                     </svg>
-                    <span className="font-medium">Send Mail</span>
+                    <span>Send</span>
                   </button>
                 </div>
 
@@ -454,9 +532,15 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                   )}
 
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{employee.user.fullName}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">ID: {employee.user._id}</p>
-                    <p className="md:hidden text-xs text-gray-500 mt-1">{employee.user.email}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {employee.user.fullName}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      ID: {employee.user._id}
+                    </p>
+                    <p className="md:hidden text-xs text-gray-500 mt-1">
+                      {employee.user.email}
+                    </p>
                   </div>
                 </div>
 
@@ -467,14 +551,22 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
 
                 {/* Department */}
                 <div className="md:col-span-2">
-                  <div className="md:hidden text-xs text-gray-500 mb-1">Department</div>
-                  <div className="text-sm text-gray-700">{employee.department || "-"}</div>
+                  <div className="md:hidden text-xs text-gray-500 mb-1">
+                    Department
+                  </div>
+                  <div className="text-sm text-gray-700">
+                    {employee.department || "-"}
+                  </div>
                 </div>
 
                 {/* Position */}
                 <div className="md:col-span-2">
-                  <div className="md:hidden text-xs text-gray-500 mb-1">Position</div>
-                  <div className="text-sm text-gray-700">{employee.position || "-"}</div>
+                  <div className="md:hidden text-xs text-gray-500 mb-1">
+                    Position
+                  </div>
+                  <div className="text-sm text-gray-700">
+                    {employee.position || "-"}
+                  </div>
                 </div>
 
                 {/* Status */}
@@ -484,8 +576,8 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                       employee.status === "active"
                         ? "bg-green-100 text-green-700"
                         : employee.status === "inactive"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-yellow-100 text-yellow-700"
                     }`}
                   >
                     {employee.status}
@@ -496,33 +588,22 @@ const EmployeeListView = ({ setShowSidebar, setNavDropDown }) => {
                 <div className="md:col-span-1 text-center">
                   <span
                     className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${
-                      employee.profileStatus === "complete" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"
+                      employee.profileStatus === "complete"
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-gray-100 text-gray-700"
                     }`}
                   >
                     {employee.profileStatus}
                   </span>
                 </div>
 
-                {/* Actions */}
-                <div className="md:col-span-1 text-center">
-                  <button
-                    onClick={(e) => handleActionButtonClick(employee, e)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                      employee.profileStatus === "incomplete"
-                        ? "bg-green-600 text-white hover:bg-green-700"
-                        : "bg-blue-600 text-white hover:bg-blue-700"
-                    }`}
-                  >
-                    {employee.profileStatus === "incomplete" ? "Complete" : "Edit"}
-                  </button>
-                </div>
               </div>
             ))}
           </div>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default EmployeeListView
+export default EmployeeListView;
